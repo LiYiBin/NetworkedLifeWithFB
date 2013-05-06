@@ -18,7 +18,7 @@
 {
     [super viewDidLoad];
     
-    [[FacebookNetwork shareFacebook] login];
+//    [[FacebookNetwork shareFacebook] login];
     
 	// Do any additional setup after loading the view, typically from a nib.
     inMapView = YES;
