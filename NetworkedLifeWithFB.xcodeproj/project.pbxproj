@@ -32,6 +32,7 @@
 		860F5FE11732A34200E51FC8 /* NetworkedLifeWithFBTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 860F5FE01732A34200E51FC8 /* NetworkedLifeWithFBTests.m */; };
 		8658FA241737A25F003F3458 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8658FA231737A25F003F3458 /* MapKit.framework */; };
 		86E130E5173F915D00E6D00F /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86E130E4173F915D00E6D00F /* CoreLocation.framework */; };
+		86E130E8173F957B00E6D00F /* CustomAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E130E7173F957B00E6D00F /* CustomAnnotation.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -87,6 +88,8 @@
 		860F5FE01732A34200E51FC8 /* NetworkedLifeWithFBTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NetworkedLifeWithFBTests.m; sourceTree = "<group>"; };
 		8658FA231737A25F003F3458 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		86E130E4173F915D00E6D00F /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		86E130E6173F957B00E6D00F /* CustomAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomAnnotation.h; sourceTree = "<group>"; };
+		86E130E7173F957B00E6D00F /* CustomAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomAnnotation.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -125,6 +128,8 @@
 				0AB57B09173695F700BFC8FD /* DetailView.m */,
 				0AB57B101737834000BFC8FD /* MapView.xib */,
 				0AB57B121737834900BFC8FD /* DetailView.xib */,
+				86E130E6173F957B00E6D00F /* CustomAnnotation.h */,
+				86E130E7173F957B00E6D00F /* CustomAnnotation.m */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -348,6 +353,7 @@
 				0AB57B07173695EA00BFC8FD /* MapView.m in Sources */,
 				0AB57B0A173695F700BFC8FD /* DetailView.m in Sources */,
 				0AB57B3017378BA700BFC8FD /* FacebookNetwork.m in Sources */,
+				86E130E8173F957B00E6D00F /* CustomAnnotation.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
