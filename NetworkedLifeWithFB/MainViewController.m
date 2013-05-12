@@ -9,6 +9,7 @@
 #import "MainViewController.h"
 #import <MapKit/MapKit.h>
 #import "CustomAnnotation.h"
+#import "DetailLocationViewController.h"
 
 @interface MainViewController () <MKMapViewDelegate>
 
@@ -32,6 +33,8 @@
     nibObjs = [[NSBundle mainBundle] loadNibNamed:@"MapView" owner:nil options:nil];
     mapView = [nibObjs lastObject];
     [self.view addSubview:mapView];
+    
+    mapView.map.delegate = self;
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -70,15 +73,24 @@
 
 #pragma mark - MKMapViewDelegate
 
-// It can show a custom annotation view
-- (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id<MKAnnotation>)annotation
+- (void)mapView:(MKMapView *)mapView didSelectAnnotationView:(MKAnnotationView *)view
 {
-    MKAnnotationView* aView = [[MKAnnotationView alloc] initWithAnnotation:annotation
-                                                            reuseIdentifier:@"MyCustomAnnotation"];
-    aView.image = [UIImage imageNamed:@"myimage.png"];
-    aView.centerOffset = CGPointMake(10, -20);
+    UIStoryboard *main = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
+    DetailLocationViewController *viewController = [main instantiateViewControllerWithIdentifier:@"DetailLocationViewController"];
+    viewController.title = [view.annotation title];
     
-    return aView;
+    [self.navigationController pushViewController:viewController animated:YES];
 }
+
+// It can show a custom annotation view
+//- (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id<MKAnnotation>)annotation
+//{
+//    MKAnnotationView* aView = [[MKAnnotationView alloc] initWithAnnotation:annotation
+//                                                            reuseIdentifier:@"MyCustomAnnotation"];
+//    aView.image = [UIImage imageNamed:@"myimage.png"];
+//    aView.centerOffset = CGPointMake(10, -20);
+//    
+//    return aView;
+//}
 
 @end

@@ -33,6 +33,7 @@
 		8658FA241737A25F003F3458 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8658FA231737A25F003F3458 /* MapKit.framework */; };
 		86E130E5173F915D00E6D00F /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86E130E4173F915D00E6D00F /* CoreLocation.framework */; };
 		86E130E8173F957B00E6D00F /* CustomAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E130E7173F957B00E6D00F /* CustomAnnotation.m */; };
+		86E130F5173FA83B00E6D00F /* DetailLocationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E130F4173FA83B00E6D00F /* DetailLocationViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -90,6 +91,8 @@
 		86E130E4173F915D00E6D00F /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		86E130E6173F957B00E6D00F /* CustomAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomAnnotation.h; sourceTree = "<group>"; };
 		86E130E7173F957B00E6D00F /* CustomAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomAnnotation.m; sourceTree = "<group>"; };
+		86E130F3173FA83B00E6D00F /* DetailLocationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DetailLocationViewController.h; sourceTree = "<group>"; };
+		86E130F4173FA83B00E6D00F /* DetailLocationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DetailLocationViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -156,7 +159,6 @@
 		860F5FA31732A34200E51FC8 = {
 			isa = PBXGroup;
 			children = (
-				86E130E4173F915D00E6D00F /* CoreLocation.framework */,
 				860F5FB51732A34200E51FC8 /* NetworkedLifeWithFB */,
 				860F5FD91732A34200E51FC8 /* NetworkedLifeWithFBTests */,
 				860F5FAE1732A34200E51FC8 /* Frameworks */,
@@ -176,6 +178,7 @@
 		860F5FAE1732A34200E51FC8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				86E130E4173F915D00E6D00F /* CoreLocation.framework */,
 				8658FA231737A25F003F3458 /* MapKit.framework */,
 				860F5FAF1732A34200E51FC8 /* UIKit.framework */,
 				860F5FB11732A34200E51FC8 /* Foundation.framework */,
@@ -194,6 +197,8 @@
 				860F5FC71732A34200E51FC8 /* MainStoryboard.storyboard */,
 				860F5FCA1732A34200E51FC8 /* MainViewController.h */,
 				860F5FCB1732A34200E51FC8 /* MainViewController.m */,
+				86E130F3173FA83B00E6D00F /* DetailLocationViewController.h */,
+				86E130F4173FA83B00E6D00F /* DetailLocationViewController.m */,
 				860F5FB61732A34200E51FC8 /* Supporting Files */,
 			);
 			path = NetworkedLifeWithFB;
@@ -354,6 +359,7 @@
 				0AB57B0A173695F700BFC8FD /* DetailView.m in Sources */,
 				0AB57B3017378BA700BFC8FD /* FacebookNetwork.m in Sources */,
 				86E130E8173F957B00E6D00F /* CustomAnnotation.m in Sources */,
+				86E130F5173FA83B00E6D00F /* DetailLocationViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

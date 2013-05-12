@@ -11,7 +11,7 @@
 #import "DetailView.h"
 #import "FacebookNetwork.h"
 
-@interface MainViewController : UIViewController{
+@interface MainViewController : UIViewController {
     BOOL    inMapView;
     
     MapView*    mapView;
