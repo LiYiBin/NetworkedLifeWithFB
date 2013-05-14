@@ -7,12 +7,14 @@
 //
 
 #import "MainAppDelegate.h"
+#import "FacebookNetwork.h"
 
 @implementation MainAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     // Override point for customization after application launch.
+//    [[FacebookNetwork shareFacebook] login];
     return YES;
 }
 							
@@ -42,5 +44,11 @@
 {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
+
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url
+  sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
+    return [[FacebookNetwork shareFacebook].facebook handleOpenURL:url];
+}
+
 
 @end

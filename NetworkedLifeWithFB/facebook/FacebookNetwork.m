@@ -10,11 +10,12 @@
 //#import "FBWebDialogs.h"
 
 #warning Need to be filled out in your credentials!!!
-NSString * const kFacebookAppID = @"382862428455191";
+NSString * const kFacebookAppID = @"461239953945314";
 
 
 @implementation FacebookNetwork
 static FacebookNetwork* facebooks = nil;
+
 +(FacebookNetwork*)shareFacebook{
     if (facebooks == nil) {
         facebooks = [[FacebookNetwork alloc] init];
@@ -24,6 +25,7 @@ static FacebookNetwork* facebooks = nil;
 
 @synthesize delegate;
 @synthesize facebook;
+@synthesize fbState;
 @synthesize appUsageCheckEnabled;
 
 -(id)init{
@@ -32,6 +34,8 @@ static FacebookNetwork* facebooks = nil;
         if (facebook == nil) {
             facebook = [[Facebook alloc] initWithAppId:kFacebookAppID andDelegate:self];
         }
+        defaults = [NSUserDefaults standardUserDefaults];
+        
         if ([defaults objectForKey:@"FBAccessTokenKey"] 
             && [defaults objectForKey:@"FBExpirationDateKey"]) {
             facebook.accessToken = [defaults objectForKey:@"FBAccessTokenKey"];
@@ -52,6 +56,7 @@ static FacebookNetwork* facebooks = nil;
     return self;
 }
 -(void)login{
+    NSLog(@"login");
     if ([facebook isSessionValid] == NO) {
         NSArray *permissions = [[NSArray alloc] initWithObjects:
                                 @"user_about_me",	// 個人資訊
@@ -59,8 +64,17 @@ static FacebookNetwork* facebooks = nil;
                                 @"publish_actions",	// 到別人牆上貼文
                                 @"publish_stream",	// 到別人牆上貼文
                                 @"email",
+                                @"user_photos",
+                                @"user_likes",
+                                @"friends_likes",
+                                @"offline_access",
+                                @"user_checkins",
+                                @"friends_checkins",
+                                @"friends_photos", 
+                                @"friends_about_me",
                                 nil];
         [facebook authorize:permissions];
+//        [permissions release];
     }else {
         [self fbDidLogin];
     }
@@ -164,13 +178,86 @@ static FacebookNetwork* facebooks = nil;
               andDelegate:self];
 }
 #pragma mark data request
+
+-(void)requestMyLike{
+    fbState = FacebookStateTypeMyLikes;
+    [self requestWithGraphPath:@"me?fields=likes"];
+    
+//    NSString* fql = @"SELECT uid, name, pic_square FROM user WHERE uid = me() OR uid IN (SELECT uid2 FROM friend WHERE uid1 = me())";
+
+//    NSString *fql = @"SELECT user_id, object_id, object_type FROM like WHERE user_id IN (SELECT uid2 FROM friend WHERE uid1 = me())";
+//    // Create a params dictionary
+//    NSMutableDictionary* params = [NSMutableDictionary dictionaryWithObject:fql forKey:@"query"];
+//    
+//    // Make the request
+//    [facebook requestWithMethodName:@"fql.query" andParams:params andHttpMethod:@"GET" andDelegate:self];
+    
+    // Query to fetch the active user's friends, limit to 25.
+    //    NSString *query =
+    //    @"SELECT uid, name, pic_square FROM user WHERE uid IN "
+    //    @"(SELECT uid2 FROM friend WHERE uid1 = me() LIMIT 25)";
+    //    // Set up the query parameter
+    //    NSDictionary *queryParam =
+    //    [NSDictionary dictionaryWithObjectsAndKeys:query, @"q", nil];
+    //    // Make the API request that uses FQL
+    //    [facebook startWithGraphPath:@"/fql"
+    //                                 parameters:queryParam
+    //                                 HTTPMethod:@"GET"
+    //                          completionHandler:^(FBRequestConnection *connection,
+    //                                              id result,
+    //                                              NSError *error) {
+    //                              if (error) {
+    //                                  NSLog(@"Error: %@", [error localizedDescription]);
+    //                              } else {
+    //                                  NSLog(@"Result: %@", result);
+    //                              }
+    //                          }];
+    
+}
+
+-(void)requestMyCheckins{
+    fbState = FacebookStateTypeMyCheckins;
+    [self requestWithGraphPath:@"me?fields=checkins"];
+}
+
+-(void)requestFriendLikeBYUID:(NSString*)uid{
+    
+    fbState = FacebookStateTypeFriendLikes;
+    [self requestWithGraphPath:[NSString stringWithFormat:@"%@?fields=likes",uid]];
+}
+-(void)requestFriendCheckinsBYUID:(NSString*)uid{
+
+    fbState = FacebookStateTypeFriendCheckins;
+    [self requestWithGraphPath:[NSString stringWithFormat:@"%@?fields=checkins.fields(id,from,place)",uid]];
+}
+
+
 -(void)requestProfileInfo{
     //    [self requestWithGraphPath:@"me"];
     [self requestWithGraphPath:@"me?fields=friends.fields(picture)"];
 }
 
+
 -(void)requestFriendInfo{
+    fbState = FacebookStateTypeFriendList;
     [self requestWithGraphPath:@"me/friends"];
+}
+-(void)requestFriendAlbum:(NSArray*)lists{
+    int i = 0;
+    [self requestWithGraphPath:[NSString stringWithFormat:@"%@?fields=photos.fields(source,place,name)",[lists objectAtIndex:i]]];
+//    for (int i = 0; i<[lists count]; i++) {
+//        [self requestWithGraphPath:[NSString stringWithFormat:@"%@?fields=photos.fields(source,place,name)",[lists objectAtIndex:i]]];
+//    }
+
+}
+-(void)requestFriendsPhoto:(NSArray*)fLists{
+    for (int i = 0; i < [fLists count]; i++) {
+        NSLog(@"%@",[fLists objectAtIndex:i]);
+
+//        [self requestWithGraphPath:[NSString stringWithFormat:@"%@/picture?type=large",[fLists objectAtIndex:i]]];
+//        [self requestWithGraphPath:[NSString stringWithFormat:@"501442114/picture?width=500&height=500",[fLists objectAtIndex:i]]];
+    }
+
 }
 
 -(void)requestWithGraphPath:(NSString*)path{
@@ -178,7 +265,7 @@ static FacebookNetwork* facebooks = nil;
 }
 #pragma mark login - 
 - (void)fbDidLogin {
-//    NSLog(@"login success");
+    NSLog(@"login success");
     [defaults setObject:[facebook accessToken] forKey:@"FBAccessTokenKey"];
     [defaults setObject:[facebook expirationDate] forKey:@"FBExpirationDateKey"];
     [defaults synchronize];
@@ -222,5 +309,7 @@ static FacebookNetwork* facebooks = nil;
     }
 
 }
+
+
 
 @end

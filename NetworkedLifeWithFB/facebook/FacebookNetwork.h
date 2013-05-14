@@ -11,6 +11,16 @@
 
 @protocol facebookDelegate <NSObject>
 
+typedef enum facebookStateType{
+    FacebookStateTypeMyCheckins,
+    FacebookStateTypeMyLikes,
+    FacebookStateTypeFriendList,
+    FacebookStateTypeFriendCheckins,
+    FacebookStateTypeFriendLikes,  
+    FacebookStateTypeFriendAboutME,
+}FacebookStateType;
+
+
 @optional
 -(void)facebookLoginSuccess;
 -(void)facebookRequestDidFinish:(id)result;
@@ -20,9 +30,11 @@
 
 @interface FacebookNetwork : NSObject <FBSessionDelegate , FBRequestDelegate, FBDialogDelegate>{
     NSUserDefaults* defaults;
+    FacebookStateType fbState;
 }
-@property(nonatomic, readwrite, assign)id<facebookDelegate> delegate;
-@property(nonatomic, readwrite, retain)Facebook*            facebook;
+@property(nonatomic,readwrite,assign)FacebookStateType fbState;
+@property(nonatomic, readwrite, weak)id<facebookDelegate> delegate;
+@property(nonatomic, readwrite, strong)Facebook*            facebook;
 @property (nonatomic, assign) BOOL appUsageCheckEnabled;
 
 +(FacebookNetwork*)shareFacebook;
@@ -31,7 +43,13 @@
 
 -(void)requestProfileInfo;
 -(void)requestFriendInfo;
+-(void)requestMyLike;
+-(void)requestMyCheckins;
+-(void)requestFriendLikeBYUID:(NSString*)uid;
+-(void)requestFriendCheckinsBYUID:(NSString*)uid;
 
 - (void)sendRequest:(NSArray *) targeted ;
 -(void)requestWithGraphPath:(NSString*)path;
+-(void)requestFriendAlbum:(NSArray*)lists;
+-(void)requestFriendsPhoto:(NSArray*)fLists;
 @end
