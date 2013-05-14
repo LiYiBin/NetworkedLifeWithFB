@@ -8,8 +8,6 @@
 
 #import "MainViewController.h"
 #import <MapKit/MapKit.h>
-#import "CustomAnnotation.h"
-#import "DetailLocationViewController.h"
 #import "FacebookNetwork.h"
 
 @interface MainViewController () <facebookDelegate,MKMapViewDelegate>{

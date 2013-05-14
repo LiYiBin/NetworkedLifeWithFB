@@ -7,8 +7,6 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "MapView.h"
-#import "DetailView.h"
 #import "FacebookNetwork.h"
 
 @interface MainViewController : UIViewController
