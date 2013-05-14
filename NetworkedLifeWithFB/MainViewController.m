@@ -23,19 +23,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
 	// Do any additional setup after loading the view, typically from a nib.
-    inMapView = YES;
-
-    NSArray* nibObjs = [[NSBundle mainBundle] loadNibNamed:@"DetailView" owner:nil options:nil];
-    detailView = [nibObjs lastObject];
-    [self.view addSubview:detailView];
-    
-    nibObjs = [[NSBundle mainBundle] loadNibNamed:@"MapView" owner:nil options:nil];
-    mapView = [nibObjs lastObject];
-    [self.view addSubview:mapView];
-    
-    mapView.map.delegate = self;
     
     [FacebookNetwork shareFacebook].delegate = self;
     [[FacebookNetwork shareFacebook] login];
@@ -48,10 +36,12 @@
     [[FacebookNetwork shareFacebook] requestFriendInfo];
 }
 
+#pragma mark - facebookDelegate
+
 -(void)facebookRequestDidFinish:(id)result{
-//    NSLog(@"%@",result);
+    NSLog(@"%@",result);
     if ([FacebookNetwork shareFacebook].fbState == FacebookStateTypeFriendList) {
-        int loadFriendLimit = 10;
+        int loadFriendLimit = 1;
         NSArray* data = [result objectForKey:@"data"];
         NSDictionary* friendID = nil;
         NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
@@ -67,7 +57,7 @@
         }
 //        [defaults synchronize];
         
-    }else if ([FacebookNetwork shareFacebook].fbState == FacebookStateTypeFriendLikes){
+    } else if ([FacebookNetwork shareFacebook].fbState == FacebookStateTypeFriendLikes){
         NSString *uid = [result objectForKey:@"id"];
         NSArray* data = [((NSDictionary*)[result objectForKey:@"likes"]) objectForKey:@"data"];
         
@@ -77,7 +67,7 @@
             NSString *like_name = [dic objectForKey:@"name"];
             NSLog(@"id:%@  name:%@",like_id,like_name);
         }
-    }else if([FacebookNetwork shareFacebook].fbState == FacebookStateTypeFriendCheckins){
+    } else if([FacebookNetwork shareFacebook].fbState == FacebookStateTypeFriendCheckins){
         
         NSString *uid = [result objectForKey:@"id"];
         NSArray* data = [((NSDictionary*)[result objectForKey:@"checkins"]) objectForKey:@"data"];
@@ -91,87 +81,5 @@
         }
     }
 }
-
-- (void)viewWillAppear:(BOOL)animated
-{
-    [super viewWillAppear:animated];
-    
-    // Test addCustomAnnotion
-    [self addCustomAnnotion:CLLocationCoordinate2DMake(23.855698,120.893555) withTitle:@"Title" subtitle:@"subtitle"];
-    // Test setCenterCoordinateOfMapViewWithAddress
-    [self setCenterCoordinateOfMapViewWithAddress:@"Taipei" animated:YES];
-    
-    [mapView.map setCenterCoordinate:CLLocationCoordinate2DMake(23.855698,120.893555)];
-}
-
--(IBAction)switchView:(UIBarButtonItem*)sender{
-    inMapView = !inMapView;
-    
-    float  duration = 0.5f;
-    if (inMapView) {
-        [sender setTitle:@"路線"];
-        [UIView transitionFromView:detailView toView:mapView  duration:duration options:UIViewAnimationOptionTransitionFlipFromLeft completion:nil];
-    }else{
-        [sender setTitle:@"地圖"];
-        [UIView transitionFromView:mapView toView:detailView duration:duration options:UIViewAnimationOptionTransitionFlipFromRight completion:nil];
-    }
-}
-
-#pragma mark - Custom MapView Methods
-
-- (void)addCustomAnnotion:(CLLocationCoordinate2D)coor withTitle:(NSString *)title subtitle:(NSString *)subtitle
-{
-    CustomAnnotation *annotation = [[CustomAnnotation alloc] initWithLocation:coor];
-    annotation.title = title;
-    annotation.subtitle = subtitle;
-    
-    [mapView.map addAnnotation:annotation];
-}
-
-- (void)setCenterCoordinateOfMapViewWithLocation:(CLLocationCoordinate2D)coor animated:(BOOL)animated
-{
-    [mapView.map setCenterCoordinate:coor animated:animated];
-}
-
-- (void)setCenterCoordinateOfMapViewWithAddress:(NSString *)address animated:(BOOL)animated
-{
-    CLGeocoder *geocoder = [[CLGeocoder alloc] init];
-    
-    [geocoder geocodeAddressString:address completionHandler:^(NSArray *placemarks, NSError *error) {
-        
-        if (placemarks.count > 0) {
-            CLPlacemark *placemark = placemarks[0];
-            
-            CLLocationCoordinate2D coor = placemark.location.coordinate;
-            
-            [mapView.map setCenterCoordinate:coor animated:animated];
-        }
-        else {
-            NSLog(@"Can't find address: %@", address);
-        }
-    }];
-}
-
-#pragma mark - MKMapViewDelegate
-
-- (void)mapView:(MKMapView *)mapView didSelectAnnotationView:(MKAnnotationView *)view
-{
-    UIStoryboard *main = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
-    DetailLocationViewController *viewController = [main instantiateViewControllerWithIdentifier:@"DetailLocationViewController"];
-    viewController.title = [view.annotation title];
-    
-    [self.navigationController pushViewController:viewController animated:YES];
-}
-
-// It can show a custom annotation view
-//- (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id<MKAnnotation>)annotation
-//{
-//    MKAnnotationView* aView = [[MKAnnotationView alloc] initWithAnnotation:annotation
-//                                                            reuseIdentifier:@"MyCustomAnnotation"];
-//    aView.image = [UIImage imageNamed:@"myimage.png"];
-//    aView.centerOffset = CGPointMake(10, -20);
-//    
-//    return aView;
-//}
 
 @end

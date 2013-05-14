@@ -11,13 +11,6 @@
 #import "DetailView.h"
 #import "FacebookNetwork.h"
 
-@interface MainViewController : UIViewController {
-    BOOL    inMapView;
-    
-    MapView*    mapView;
-    DetailView* detailView;
-}
-
--(IBAction)switchView:(id)sender;
+@interface MainViewController : UIViewController
 
 @end
