@@ -33,6 +33,9 @@
 		860F5FE11732A34200E51FC8 /* NetworkedLifeWithFBTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 860F5FE01732A34200E51FC8 /* NetworkedLifeWithFBTests.m */; };
 		8658FA241737A25F003F3458 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8658FA231737A25F003F3458 /* MapKit.framework */; };
 		86E130E5173F915D00E6D00F /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86E130E4173F915D00E6D00F /* CoreLocation.framework */; };
+		86E130FE1742266F00E6D00F /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86E130FD1742266F00E6D00F /* CoreData.framework */; };
+		86E13102174226DF00E6D00F /* NetworkedLifeDB.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 86E13100174226DF00E6D00F /* NetworkedLifeDB.xcdatamodeld */; };
+		86E13117174229C100E6D00F /* Friend.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E13116174229C100E6D00F /* Friend.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -93,6 +96,10 @@
 		860F5FE01732A34200E51FC8 /* NetworkedLifeWithFBTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NetworkedLifeWithFBTests.m; sourceTree = "<group>"; };
 		8658FA231737A25F003F3458 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		86E130E4173F915D00E6D00F /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		86E130FD1742266F00E6D00F /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		86E13101174226DF00E6D00F /* NetworkedLifeDB.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = NetworkedLifeDB.xcdatamodel; sourceTree = "<group>"; };
+		86E13115174229C100E6D00F /* Friend.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Friend.h; sourceTree = "<group>"; };
+		86E13116174229C100E6D00F /* Friend.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Friend.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,6 +107,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				86E130FE1742266F00E6D00F /* CoreData.framework in Frameworks */,
 				86E130E5173F915D00E6D00F /* CoreLocation.framework in Frameworks */,
 				8658FA241737A25F003F3458 /* MapKit.framework in Frameworks */,
 				860F5FB01732A34200E51FC8 /* UIKit.framework in Frameworks */,
@@ -181,6 +189,7 @@
 		860F5FAE1732A34200E51FC8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				86E130FD1742266F00E6D00F /* CoreData.framework */,
 				86E130E4173F915D00E6D00F /* CoreLocation.framework */,
 				8658FA231737A25F003F3458 /* MapKit.framework */,
 				860F5FAF1732A34200E51FC8 /* UIKit.framework */,
@@ -194,6 +203,7 @@
 		860F5FB51732A34200E51FC8 /* NetworkedLifeWithFB */ = {
 			isa = PBXGroup;
 			children = (
+				86E130FF174226B200E6D00F /* Model */,
 				0AB57B14173789FE00BFC8FD /* View */,
 				860F5FBE1732A34200E51FC8 /* MainAppDelegate.h */,
 				860F5FBF1732A34200E51FC8 /* MainAppDelegate.m */,
@@ -237,6 +247,16 @@
 				860F5FDC1732A34200E51FC8 /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		86E130FF174226B200E6D00F /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				86E13100174226DF00E6D00F /* NetworkedLifeDB.xcdatamodeld */,
+				86E13115174229C100E6D00F /* Friend.h */,
+				86E13116174229C100E6D00F /* Friend.m */,
+			);
+			name = Model;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -360,6 +380,8 @@
 				84E135F11741D3AA004274AF /* SBJsonBase.m in Sources */,
 				84E135F21741D3AA004274AF /* SBJsonParser.m in Sources */,
 				84E135F31741D3AA004274AF /* SBJsonWriter.m in Sources */,
+				86E13102174226DF00E6D00F /* NetworkedLifeDB.xcdatamodeld in Sources */,
+				86E13117174229C100E6D00F /* Friend.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -580,6 +602,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		86E13100174226DF00E6D00F /* NetworkedLifeDB.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				86E13101174226DF00E6D00F /* NetworkedLifeDB.xcdatamodel */,
+			);
+			currentVersion = 86E13101174226DF00E6D00F /* NetworkedLifeDB.xcdatamodel */;
+			path = NetworkedLifeDB.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 860F5FA41732A34200E51FC8 /* Project object */;
 }
