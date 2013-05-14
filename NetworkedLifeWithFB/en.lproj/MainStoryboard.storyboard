@@ -68,13 +68,7 @@
                             <constraint firstItem="uSp-2E-DGC" firstAttribute="leading" secondItem="3" secondAttribute="leading" type="default" id="zCr-ne-KBm"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="Ecl-iX-cmS">
-                        <barButtonItem key="rightBarButtonItem" title="路線" id="m7a-99-2T1">
-                            <connections>
-                                <action selector="switchView:" destination="2" id="jHd-fb-q2g"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
+                    <navigationItem key="navigationItem" id="Ecl-iX-cmS"/>
                     <nil key="simulatedStatusBarMetrics"/>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics"/>
                     <connections>

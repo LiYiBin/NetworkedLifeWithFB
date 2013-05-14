@@ -7,7 +7,7 @@
 //
 
 #import "MainViewController.h"
-#import <MapKit/MapKit.h>
+#import "MainAppDelegate.h"
 #import "FacebookNetwork.h"
 #import "Friend.h"
 
@@ -35,7 +35,7 @@
 
 #pragma mark - getter
 
-- (NSFetchedResultsController *)plansController
+- (NSFetchedResultsController *)fetchedResultsController
 {
     if (_fetchedResultsController != nil) {
         return _fetchedResultsController;
@@ -62,7 +62,7 @@
     self.fetchedResultsController = aFetchedResultsController;
     
 	NSError *error = nil;
-	if (![self.plansController performFetch:&error]) {
+	if (![self.fetchedResultsController performFetch:&error]) {
         // Replace this implementation with code to handle the error appropriately.
         // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
 	    NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
@@ -78,6 +78,11 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
+    NSLog(@"Start, Time: %@", [NSDate date]);
+    // Init ManagedObjectContext
+    MainAppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    self.managedObjectContext = [appDelegate managedObjectContext];
+    
     
     [FacebookNetwork shareFacebook].delegate = self;
     [[FacebookNetwork shareFacebook] login];
@@ -89,6 +94,32 @@
     getCount = 0;
     
     loadFriendLimit = 10;
+    
+    [self clearAllInstanceOfFriendEntity];
+}
+
+#pragma mark 
+
+- (void)clearAllInstanceOfFriendEntity
+{
+    NSFetchRequest *allFriends = [[NSFetchRequest alloc] init];
+    [allFriends setEntity:[NSEntityDescription entityForName:@"Friend" inManagedObjectContext:self.managedObjectContext]];
+    
+    //only fetch the managedObjectID
+    [allFriends setIncludesPropertyValues:NO];
+    
+    NSError * error = nil;
+    NSArray * friends = [self.managedObjectContext executeFetchRequest:allFriends error:&error];
+    
+    for (NSManagedObject *friend in friends) {
+        [self.managedObjectContext deleteObject:friend];
+    }
+    
+    NSError *saveError = nil;
+    if (![self.managedObjectContext save:&saveError]) {
+        NSLog(@"Unresolved error %@, %@", saveError, [saveError userInfo]);
+        exit(-1);
+    }
 }
 
 #pragma mark - UITableViewDataSource
@@ -243,6 +274,7 @@
         [friendcheckins setObject:checkin forKey:uid];
 //        if (getCount >= [friendlist count]) {
         
+//        loadFriendLimit = [friendlist count];
         if (getCount >= loadFriendLimit) {
             getCount = 0;
             [self loadDataFinish];
@@ -255,7 +287,7 @@
     NSLog(@"friend :%@",friendlist);
     /* friendlist 是一個arry 存nsdictionary   key id是fb的id   name是人名*/
     NSLog(@"friendlike :%@",friendlikes);
-    /* friendlikes 是一個nsmutabledictionary   
+    /* friendlikes 是一個nsmutabledictionary
         用[friendlikes objectForKey:@"id"]  拿到一個存放id這個人的按贊紀錄array
         array裡面存nsdictionary   key like_id是按贊的id   like_name是按讚的名稱
      */
@@ -264,6 +296,76 @@
      用[friendcheckins objectForKey:@"id"]  拿到一個存放id這個人的打卡紀錄array
      array裡面存nsdictionary   key place_id是打卡的id   place_name是打卡的名稱
      */
+    NSLog(@"Download finished, Time: %@", [NSDate date]);
+    NSLog(@"Download friend count: %d", friendlist.count);
+    NSLog(@"MyLikes count: %d", mylikes.count);
+    NSLog(@"MyCheckIns count: %d", mycheckins.count);
+    
+    NSUInteger compareNumber = 0;
+    for (NSDictionary *friendDictionary in friendlist) {
+        NSString *fID = [friendDictionary objectForKey:@"id"];
+        NSString *fName = [friendDictionary objectForKey:@"name"];
+        NSArray *fLikes = [friendlikes objectForKey:fID];
+        NSUInteger sameLikes = 0;
+        
+        // Check like id
+        for (NSDictionary *fLike in fLikes) {
+            NSString *flikeID = [fLike objectForKey:@"like_id"];
+            
+            for (NSDictionary *mLike in mylikes) {
+                NSString *mLikeID = [mLike objectForKey:@"like_id"];
+                
+                compareNumber++;
+                if ([flikeID isEqualToString:mLikeID]) {
+                    sameLikes++;
+                    break;
+                }
+            }
+        }
+        
+        NSUInteger sameCheckins = 0;
+        NSArray *fCheckins = [friendcheckins objectForKey:fID];
+        
+        // Check like's id
+        for (NSDictionary *fCheck in fCheckins) {
+            NSString *fCheckinID = [fCheck objectForKey:@"place_id"];
+            
+            for (NSDictionary *mCheckin in mycheckins) {
+                compareNumber++;
+                
+                NSString *mCheckinID = [mCheckin objectForKey:@"place_id"];
+                if ([fCheckinID isEqualToString:mCheckinID]) {
+                    sameCheckins++;
+                    break;
+                }
+            }
+        }
+        
+        // Create friend data and save it to database
+        Friend *friend = (Friend *)[NSEntityDescription insertNewObjectForEntityForName:@"Friend" inManagedObjectContext:self.managedObjectContext];
+        
+        if (friend != nil) {
+
+            friend.identifier = fID;
+            friend.name = fName;
+            friend.scoreOfLikes = @(sameLikes);
+            friend.scoreOfCheckins = @(sameCheckins);
+            friend.sumOfScore = @(sameLikes + sameCheckins);
+            
+            NSError *error = nil;
+            if (![self.managedObjectContext save:&error]) {
+                NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+                exit(-1);
+            }
+        } else {
+            NSLog(@"Failed to create the new friend object");
+        }   
+    }
+    self.fetchedResultsController = nil;
+    [self.tableView reloadData];
+    
+    NSLog(@"Compare number: %d", compareNumber);
+    NSLog(@"Compare Finished, Time: %@", [NSDate date]);
 }
 
 #pragma mark NSFetchedResultsControllerDelegate
