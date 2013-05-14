@@ -253,11 +253,9 @@ static FacebookNetwork* facebooks = nil;
 -(void)requestFriendsPhoto:(NSArray*)fLists{
     for (int i = 0; i < [fLists count]; i++) {
         NSLog(@"%@",[fLists objectAtIndex:i]);
-
 //        [self requestWithGraphPath:[NSString stringWithFormat:@"%@/picture?type=large",[fLists objectAtIndex:i]]];
 //        [self requestWithGraphPath:[NSString stringWithFormat:@"501442114/picture?width=500&height=500",[fLists objectAtIndex:i]]];
     }
-
 }
 
 -(void)requestWithGraphPath:(NSString*)path{
@@ -265,7 +263,7 @@ static FacebookNetwork* facebooks = nil;
 }
 #pragma mark login - 
 - (void)fbDidLogin {
-    NSLog(@"login success");
+//    NSLog(@"login success");
     [defaults setObject:[facebook accessToken] forKey:@"FBAccessTokenKey"];
     [defaults setObject:[facebook expirationDate] forKey:@"FBExpirationDateKey"];
     [defaults synchronize];
@@ -303,7 +301,7 @@ static FacebookNetwork* facebooks = nil;
 }
 
 - (void)request:(FBRequest *)request didLoad:(id)result{
-    NSLog(@"request finish");
+//    NSLog(@"request finish");
     if ([delegate respondsToSelector:@selector(facebookRequestDidFinish:)]) {
         [delegate facebookRequestDidFinish:result];
     }
