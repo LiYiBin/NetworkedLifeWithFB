@@ -32,10 +32,13 @@
 		860F5FDE1732A34200E51FC8 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 860F5FDC1732A34200E51FC8 /* InfoPlist.strings */; };
 		860F5FE11732A34200E51FC8 /* NetworkedLifeWithFBTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 860F5FE01732A34200E51FC8 /* NetworkedLifeWithFBTests.m */; };
 		8658FA241737A25F003F3458 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8658FA231737A25F003F3458 /* MapKit.framework */; };
+		865CFA6F17438483005A9C45 /* Like.m in Sources */ = {isa = PBXBuildFile; fileRef = 865CFA6E17438483005A9C45 /* Like.m */; };
+		865CFA7217438484005A9C45 /* Checkin.m in Sources */ = {isa = PBXBuildFile; fileRef = 865CFA7117438484005A9C45 /* Checkin.m */; };
+		865CFA7517438484005A9C45 /* Friend.m in Sources */ = {isa = PBXBuildFile; fileRef = 865CFA7417438484005A9C45 /* Friend.m */; };
+		865CFA7817438484005A9C45 /* User.m in Sources */ = {isa = PBXBuildFile; fileRef = 865CFA7717438484005A9C45 /* User.m */; };
 		86E130E5173F915D00E6D00F /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86E130E4173F915D00E6D00F /* CoreLocation.framework */; };
 		86E130FE1742266F00E6D00F /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86E130FD1742266F00E6D00F /* CoreData.framework */; };
 		86E13102174226DF00E6D00F /* NetworkedLifeDB.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 86E13100174226DF00E6D00F /* NetworkedLifeDB.xcdatamodeld */; };
-		86E13117174229C100E6D00F /* Friend.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E13116174229C100E6D00F /* Friend.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -95,11 +98,17 @@
 		860F5FDF1732A34200E51FC8 /* NetworkedLifeWithFBTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NetworkedLifeWithFBTests.h; sourceTree = "<group>"; };
 		860F5FE01732A34200E51FC8 /* NetworkedLifeWithFBTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NetworkedLifeWithFBTests.m; sourceTree = "<group>"; };
 		8658FA231737A25F003F3458 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
+		865CFA6D17438483005A9C45 /* Like.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Like.h; sourceTree = "<group>"; };
+		865CFA6E17438483005A9C45 /* Like.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Like.m; sourceTree = "<group>"; };
+		865CFA7017438484005A9C45 /* Checkin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Checkin.h; sourceTree = "<group>"; };
+		865CFA7117438484005A9C45 /* Checkin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Checkin.m; sourceTree = "<group>"; };
+		865CFA7317438484005A9C45 /* Friend.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Friend.h; sourceTree = "<group>"; };
+		865CFA7417438484005A9C45 /* Friend.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Friend.m; sourceTree = "<group>"; };
+		865CFA7617438484005A9C45 /* User.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = User.h; sourceTree = "<group>"; };
+		865CFA7717438484005A9C45 /* User.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = User.m; sourceTree = "<group>"; };
 		86E130E4173F915D00E6D00F /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		86E130FD1742266F00E6D00F /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		86E13101174226DF00E6D00F /* NetworkedLifeDB.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = NetworkedLifeDB.xcdatamodel; sourceTree = "<group>"; };
-		86E13115174229C100E6D00F /* Friend.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Friend.h; sourceTree = "<group>"; };
-		86E13116174229C100E6D00F /* Friend.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Friend.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -253,8 +262,14 @@
 			isa = PBXGroup;
 			children = (
 				86E13100174226DF00E6D00F /* NetworkedLifeDB.xcdatamodeld */,
-				86E13115174229C100E6D00F /* Friend.h */,
-				86E13116174229C100E6D00F /* Friend.m */,
+				865CFA7617438484005A9C45 /* User.h */,
+				865CFA7717438484005A9C45 /* User.m */,
+				865CFA7317438484005A9C45 /* Friend.h */,
+				865CFA7417438484005A9C45 /* Friend.m */,
+				865CFA7017438484005A9C45 /* Checkin.h */,
+				865CFA7117438484005A9C45 /* Checkin.m */,
+				865CFA6D17438483005A9C45 /* Like.h */,
+				865CFA6E17438483005A9C45 /* Like.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -381,7 +396,10 @@
 				84E135F21741D3AA004274AF /* SBJsonParser.m in Sources */,
 				84E135F31741D3AA004274AF /* SBJsonWriter.m in Sources */,
 				86E13102174226DF00E6D00F /* NetworkedLifeDB.xcdatamodeld in Sources */,
-				86E13117174229C100E6D00F /* Friend.m in Sources */,
+				865CFA6F17438483005A9C45 /* Like.m in Sources */,
+				865CFA7217438484005A9C45 /* Checkin.m in Sources */,
+				865CFA7517438484005A9C45 /* Friend.m in Sources */,
+				865CFA7817438484005A9C45 /* User.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

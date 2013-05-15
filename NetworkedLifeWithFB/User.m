@@ -1,23 +1,20 @@
 //
-//  Friend.m
+//  User.m
 //  NetworkedLifeWithFB
 //
 //  Created by YiBin on 13/5/15.
 //  Copyright (c) 2013年 YiBin. All rights reserved.
 //
 
-#import "Friend.h"
+#import "User.h"
 #import "Checkin.h"
 #import "Like.h"
 
 
-@implementation Friend
+@implementation User
 
 @dynamic identifier;
 @dynamic name;
-@dynamic scoreOfCheckins;
-@dynamic scoreOfLikes;
-@dynamic sumOfScore;
 @dynamic likes;
 @dynamic checkins;
 

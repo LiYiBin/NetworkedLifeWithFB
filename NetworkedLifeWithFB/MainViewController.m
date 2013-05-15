@@ -9,7 +9,10 @@
 #import "MainViewController.h"
 #import "MainAppDelegate.h"
 #import "FacebookNetwork.h"
+#import "User.h"
 #import "Friend.h"
+#import "Like.h"
+#import "Checkin.h"
 
 @interface MainViewController () <facebookDelegate, NSFetchedResultsControllerDelegate, UITableViewDataSource, UITableViewDelegate> {
     NSMutableArray *friendlist;
@@ -27,6 +30,10 @@
 
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 
+@property (nonatomic, strong) User *user;
+
+- (void)clearAllInstanceOfEntityWithName:(NSString *)entity;
+- (void)saveManagedObjectContext;
 -(void)loadDataFinish;
 
 @end
@@ -95,29 +102,42 @@
     
     loadFriendLimit = 10;
     
-    [self clearAllInstanceOfFriendEntity];
+    [self clearAllInstanceOfEntityWithName:@"User"];
+    [self clearAllInstanceOfEntityWithName:@"Friend"];
+    [self clearAllInstanceOfEntityWithName:@"Like"];
+    [self clearAllInstanceOfEntityWithName:@"Checkin"];
 }
 
-#pragma mark 
+#pragma mark Custom CoreData methods
 
-- (void)clearAllInstanceOfFriendEntity
+    // Pass Entity's name, this method will clear all instance of entity
+- (void)clearAllInstanceOfEntityWithName:(NSString *)entity
 {
-    NSFetchRequest *allFriends = [[NSFetchRequest alloc] init];
-    [allFriends setEntity:[NSEntityDescription entityForName:@"Friend" inManagedObjectContext:self.managedObjectContext]];
+    NSFetchRequest *allInstance = [[NSFetchRequest alloc] init];
+    [allInstance setEntity:[NSEntityDescription entityForName:entity inManagedObjectContext:self.managedObjectContext]];
     
     //only fetch the managedObjectID
-    [allFriends setIncludesPropertyValues:NO];
+    [allInstance setIncludesPropertyValues:NO];
     
     NSError * error = nil;
-    NSArray * friends = [self.managedObjectContext executeFetchRequest:allFriends error:&error];
+    NSArray * instances = [self.managedObjectContext executeFetchRequest:allInstance error:&error];
     
-    for (NSManagedObject *friend in friends) {
-        [self.managedObjectContext deleteObject:friend];
+    for (NSManagedObject *instance in instances) {
+        [self.managedObjectContext deleteObject:instance];
     }
     
     NSError *saveError = nil;
     if (![self.managedObjectContext save:&saveError]) {
         NSLog(@"Unresolved error %@, %@", saveError, [saveError userInfo]);
+        exit(-1);
+    }
+}
+
+- (void)saveManagedObjectContext {
+    
+    NSError *error = nil;
+    if (![self.managedObjectContext save:&error]) {
+        NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
         exit(-1);
     }
 }
@@ -168,15 +188,44 @@
     if ([FacebookNetwork shareFacebook].fbState == FacebookStateTypeMyLikes) {
         NSLog(@"getMyLikes");
         /*=================自己按贊資料============================*/
-//        NSString *uid = [result objectForKey:@"id"];
+        NSString *myID = [result objectForKey:@"id"];
+
+        // Create user data and save it to database
+        User *user = (User *)[NSEntityDescription insertNewObjectForEntityForName:@"User" inManagedObjectContext:self.managedObjectContext];
+        
+        if (user != nil) {
+            
+            user.identifier = myID;
+#warning result don't have user name
+//            user.name = ?;
+            self.user = user;
+            
+            [self saveManagedObjectContext];
+        } else {
+            NSLog(@"Failed to create the new object");
+        }
+        
         NSArray* data = [((NSDictionary*)[result objectForKey:@"likes"]) objectForKey:@"data"];
         for (NSDictionary *dic in data) {
-            NSString *like_id = [dic objectForKey:@"id"];
-            NSString *like_name = [dic objectForKey:@"name"];
-            NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
-                                 like_id,@"like_id",
-                                 like_name,@"like_name",nil];
-            [mylikes addObject:dic];
+//            NSString *like_id = [dic objectForKey:@"id"];
+//            NSString *like_name = [dic objectForKey:@"name"];
+//            NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+//                                 like_id,@"like_id",
+//                                 like_name,@"like_name",nil];
+//            [mylikes addObject:dic];
+            Like *like = (Like *)[NSEntityDescription insertNewObjectForEntityForName:@"Like" inManagedObjectContext:self.managedObjectContext];
+            if (like != nil) {
+                
+                like.identifier = [dic objectForKey:@"id"];
+                like.name = [dic objectForKey:@"name"];
+                [self.user addLikesObject:like];
+                
+                [self saveManagedObjectContext];
+            } else {
+                NSLog(@"Failed to create the new object");
+            }
+
+            [mylikes addObject:like];
         }
 //        NSLog(@"mylikes%@",mylikes);
         [[FacebookNetwork shareFacebook] requestMyCheckins];
@@ -188,12 +237,26 @@
             for (NSDictionary *dic in data) {
                 
                 NSDictionary *place = [dic objectForKey:@"place"];
-                NSString *place_id = [place objectForKey:@"id"];
-                NSString *place_name = [place objectForKey:@"name"];
-                NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
-                                     place_id,@"place_id",
-                                     place_name,@"place_name",nil];
-                [mycheckins addObject:dic];
+//                NSString *place_id = [place objectForKey:@"id"];
+//                NSString *place_name = [place objectForKey:@"name"];
+//                NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+//                                     place_id,@"place_id",
+//                                     place_name,@"place_name",nil];
+//                [mycheckins addObject:dic];
+                
+                Checkin *checkin = (Checkin *)[NSEntityDescription insertNewObjectForEntityForName:@"Checkin" inManagedObjectContext:self.managedObjectContext];
+                if (checkin != nil) {
+                    
+                    checkin.identifier = [place objectForKey:@"id"];
+                    checkin.name = [place objectForKey:@"name"];
+                    [self.user addCheckinsObject:checkin];
+                    
+                    [self saveManagedObjectContext];
+                } else {
+                    NSLog(@"Failed to create the new object");
+                }
+                
+                [mycheckins addObject:checkin];
             }
 //        NSLog(@"mycheckins%@",mycheckins);
             [[FacebookNetwork shareFacebook] requestFriendInfo];
@@ -203,10 +266,23 @@
 //        loadFriendLimit = 1;
         NSArray* data = [result objectForKey:@"data"];
         for (NSDictionary *friendID in data) {
-            NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
-                                 [friendID objectForKey:@"id"],@"id",
-                                 [friendID objectForKey:@"name"],@"name", nil];
-            [friendlist addObject:dic];
+//            NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+//                                 [friendID objectForKey:@"id"],@"id",
+//                                 [friendID objectForKey:@"name"],@"name", nil];
+//            [friendlist addObject:dic];
+            
+            Friend *friend = (Friend *)[NSEntityDescription insertNewObjectForEntityForName:@"Friend" inManagedObjectContext:self.managedObjectContext];
+            if (friend != nil) {
+                
+                friend.identifier = [friendID objectForKey:@"id"];
+                friend.name = [friendID objectForKey:@"name"];
+                
+                [self saveManagedObjectContext];
+            } else {
+                NSLog(@"Failed to create the new object");
+            }
+            
+            [friendlist addObject:friend];
         }
         getCount = 0;
 //        for (NSDictionary *dic in friendlist) {
@@ -214,12 +290,15 @@
             loadFriendLimit = [friendlist count];
         }
         for (int i=0 ; i<loadFriendLimit ;i++) {
-            NSDictionary *dic = [friendlist objectAtIndex:i];
-            [[FacebookNetwork shareFacebook] requestFriendLikeBYUID:[dic objectForKey:@"id"]];
+//            NSDictionary *dic = [friendlist objectAtIndex:i];
+//            [[FacebookNetwork shareFacebook] requestFriendLikeBYUID:[dic objectForKey:@"id"]];
+            Friend *friendData = friendlist[i];
+            [[FacebookNetwork shareFacebook] requestFriendLikeBYUID:friendData.identifier];
         }
 //        NSLog(@"friend :  %@",friendlist);
     }else if ([FacebookNetwork shareFacebook].fbState == FacebookStateTypeFriendLikes){
         /*=================朋友按贊資料============================*/
+        NSLog(@"%@", result);
         getCount++;
         NSString *uid = [result objectForKey:@"id"];
         NSArray* data = [((NSDictionary*)[result objectForKey:@"likes"]) objectForKey:@"data"];
@@ -359,7 +438,7 @@
             }
         } else {
             NSLog(@"Failed to create the new friend object");
-        }   
+        }
     }
     self.fetchedResultsController = nil;
     [self.tableView reloadData];

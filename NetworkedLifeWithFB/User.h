@@ -1,5 +1,5 @@
 //
-//  Friend.h
+//  User.h
 //  NetworkedLifeWithFB
 //
 //  Created by YiBin on 13/5/15.
@@ -11,18 +11,15 @@
 
 @class Checkin, Like;
 
-@interface Friend : NSManagedObject
+@interface User : NSManagedObject
 
 @property (nonatomic, retain) NSString * identifier;
 @property (nonatomic, retain) NSString * name;
-@property (nonatomic, retain) NSNumber * scoreOfCheckins;
-@property (nonatomic, retain) NSNumber * scoreOfLikes;
-@property (nonatomic, retain) NSNumber * sumOfScore;
 @property (nonatomic, retain) NSSet *likes;
 @property (nonatomic, retain) NSSet *checkins;
 @end
 
-@interface Friend (CoreDataGeneratedAccessors)
+@interface User (CoreDataGeneratedAccessors)
 
 - (void)addLikesObject:(Like *)value;
 - (void)removeLikesObject:(Like *)value;
