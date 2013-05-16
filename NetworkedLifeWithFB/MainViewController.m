@@ -102,7 +102,7 @@
     mylikes = [[NSMutableArray alloc] init];
     getCount = 0;
     
-    loadFriendLimit = 10;
+    loadFriendLimit = 423;
     
     [self clearAllInstanceOfEntityWithName:@"User"];
     [self clearAllInstanceOfEntityWithName:@"Friend"];
@@ -224,14 +224,15 @@
         [self saveManagedObjectContext];
         
         NSArray* data = [((NSDictionary*)[result objectForKey:@"likes"]) objectForKey:@"data"];
-        for (NSDictionary *dic in data) {            
-            Like *like = [self checkExistenceWithEntityName:@"Like" identifier:myID];
+        for (NSDictionary *dic in data) {
+            NSString *likeID = [dic objectForKey:@"id"];
+            Like *like = [self checkExistenceWithEntityName:@"Like" identifier:likeID];
             if (like == nil) {
                 like = (Like *)[NSEntityDescription insertNewObjectForEntityForName:@"Like" inManagedObjectContext:self.managedObjectContext];
                 
                 if (like != nil) {
                     
-                    like.identifier = [dic objectForKey:@"id"];
+                    like.identifier = likeID;
                     like.name = [dic objectForKey:@"name"];
 
                 } else {
@@ -319,12 +320,13 @@
         
         NSMutableArray *likes = [[NSMutableArray alloc] init];
         for (NSDictionary *dic in data) {
-            Like *like = [self checkExistenceWithEntityName:@"Like" identifier:fID];
+            NSString *likeID = [dic objectForKey:@"id"];
+            Like *like = [self checkExistenceWithEntityName:@"Like" identifier:likeID];
             if (like == nil) {
                 like = [NSEntityDescription insertNewObjectForEntityForName:@"Like" inManagedObjectContext:self.managedObjectContext];
                 
                 if (like != nil) {
-                    like.identifier = [dic objectForKey:@"id"];
+                    like.identifier = likeID;
                     like.name = [dic objectForKey:@"name"];
                 } else {
                     NSLog(@"Failed to create the new object");
@@ -363,13 +365,14 @@
         NSLog(@"checkins-------%@-------",fID);
         for (NSDictionary *dic in data) {
             NSDictionary *place = [dic objectForKey:@"place"];
+            NSString *checkinID = [place objectForKey:@"id"];
             
-            Checkin *checkin = [self checkExistenceWithEntityName:@"Checkin" identifier:fID];
+            Checkin *checkin = [self checkExistenceWithEntityName:@"Checkin" identifier:checkinID];
             if (checkin == nil) {
                 checkin = [NSEntityDescription insertNewObjectForEntityForName:@"Checkin" inManagedObjectContext:self.managedObjectContext];
                 
                 if (checkin != nil) {
-                    checkin.identifier = [place objectForKey:@"id"];
+                    checkin.identifier = checkinID;
                     checkin.name = [place objectForKey:@"name"];
                 } else {
                     NSLog(@"Failed to create the new object");
