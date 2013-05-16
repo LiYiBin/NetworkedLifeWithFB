@@ -92,7 +92,6 @@
     MainAppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
     self.managedObjectContext = [appDelegate managedObjectContext];
     
-    
     [FacebookNetwork shareFacebook].delegate = self;
     [[FacebookNetwork shareFacebook] login];
     friendlist = [[NSMutableArray alloc] init];
@@ -102,7 +101,7 @@
     mylikes = [[NSMutableArray alloc] init];
     getCount = 0;
     
-    loadFriendLimit = 423;
+    loadFriendLimit = 10;
     
     [self clearAllInstanceOfEntityWithName:@"User"];
     [self clearAllInstanceOfEntityWithName:@"Friend"];
@@ -156,6 +155,26 @@
         NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
         exit(-1);
     }
+}
+
+    // This method can get special instance of entity
+- (NSArray *)getInstanceWithEntityName:(NSString *)name identifier:(NSString *)identifier
+{
+    NSError *error = nil;
+    NSFetchRequest *instance = [[NSFetchRequest alloc] init];
+    [instance setEntity:[NSEntityDescription entityForName:name inManagedObjectContext:self.managedObjectContext]];
+    [instance setPredicate:[NSPredicate predicateWithFormat:@"identifier == %@", identifier]];
+    
+    return [self.managedObjectContext executeFetchRequest:instance error:&error];
+}
+
+- (NSArray *)getALLInstanceWithEntityName:(NSString *)name
+{
+    NSError *error = nil;
+    NSFetchRequest *instance = [[NSFetchRequest alloc] init];
+    [instance setEntity:[NSEntityDescription entityForName:name inManagedObjectContext:self.managedObjectContext]];
+    
+    return [self.managedObjectContext executeFetchRequest:instance error:&error];
 }
 
 #pragma mark - UITableViewDataSource
@@ -295,7 +314,7 @@
                     NSLog(@"Failed to create the new object");
                 }
             }
-            
+            [self.user addFriendsObject:friend];
             [self saveManagedObjectContext];
             [friendlist addObject:friend];
         }
@@ -462,7 +481,6 @@
     self.fetchedResultsController = nil;
     [self.tableView reloadData];
     
-    NSLog(@"Compare number: %d", compareNumber);
     NSLog(@"Compare Finished, Time: %@", [NSDate date]);
 }
 

@@ -2,7 +2,7 @@
 //  Checkin.m
 //  NetworkedLifeWithFB
 //
-//  Created by YiBin on 13/5/15.
+//  Created by YiBin on 13/5/16.
 //  Copyright (c) 2013年 YiBin. All rights reserved.
 //
 
