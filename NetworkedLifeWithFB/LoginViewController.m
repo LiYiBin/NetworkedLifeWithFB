@@ -1,21 +1,20 @@
 //
-//  MainViewController.m
+//  LoginViewController.m
 //  NetworkedLifeWithFB
 //
-//  Created by YiBin on 13/5/2.
+//  Created by yang on 13/5/17.
 //  Copyright (c) 2013年 YiBin. All rights reserved.
 //
-
-#import "MainViewController.h"
 #import "MainAppDelegate.h"
+#import "LoginViewController.h"
 #import "FacebookNetwork.h"
 #import "User.h"
 #import "Friend.h"
 #import "Like.h"
 #import "Checkin.h"
-#import "Cell.h"
+#import "MBProgressHUD.h"
 
-@interface MainViewController () <facebookDelegate, NSFetchedResultsControllerDelegate, UITableViewDataSource, UITableViewDelegate> {
+@interface LoginViewController ()<facebookDelegate,NSFetchedResultsControllerDelegate,MBProgressHUDDelegate>{
     NSMutableArray *friendlist;
     NSMutableArray *friendlikes;
     NSMutableArray *friendcheckins;
@@ -24,14 +23,14 @@
     int getCount;
     
     int loadFriendLimit;
+    
+    MBProgressHUD*      hud;
 }
-
+@property (nonatomic, strong) User *user;
 @property (nonatomic, strong) NSManagedObjectContext *managedObjectContext;
 @property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
 
-@property (weak, nonatomic) IBOutlet UITableView *tableView;
 
-@property (nonatomic, strong) User *user;
 
 - (void)clearAllInstanceOfEntityWithName:(NSString *)entity;
 - (id)checkExistenceWithEntityName:(NSString *)name identifier:(NSString *)identifier;
@@ -41,7 +40,8 @@
 
 @end
 
-@implementation MainViewController
+@implementation LoginViewController
+
 #pragma mark - getter
 
 - (NSFetchedResultsController *)fetchedResultsController
@@ -81,25 +81,17 @@
     return _fetchedResultsController;
 }
 
-#pragma mark view lifecycle
+#pragma mark view
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    NSString *loginUID = [[NSUserDefaults standardUserDefaults] stringForKey:@"loginUID"];
-    if (loginUID ==nil) {
-        [self logOut];
-        return;
-    }
+	// Do any additional setup after loading the view.
+    [self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"bg.png"]]];
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"loginUID"];
     
-    // Do any additional setup after loading the view, typically from a nib.
-    NSLog(@"Start, Time: %@", [NSDate date]);
-    // Init ManagedObjectContext
     MainAppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
     self.managedObjectContext = [appDelegate managedObjectContext];
-    
-//    [FacebookNetwork shareFacebook].delegate = self;
-//    [[FacebookNetwork shareFacebook] login];
     friendlist = [[NSMutableArray alloc] init];
     friendcheckins = [[NSMutableArray alloc] init];
     friendlikes = [[NSMutableArray alloc] init];
@@ -108,152 +100,32 @@
     getCount = 0;
     
     loadFriendLimit = 10;
-     [self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"bg.png"]]];
-    [self.tableView setBackgroundColor:[[UIColor whiteColor] colorWithAlphaComponent:0.7]];
-    [self.tableView reloadData];
     
-    
-    UIBarButtonItem *anotherButton = [[UIBarButtonItem alloc] initWithTitle:@"登出" style:UIBarButtonItemStylePlain
-                                                                     target:self action:@selector(logOut)];
-    self.navigationItem.rightBarButtonItem = anotherButton;
+    [self clearAllInstanceOfEntityWithName:@"User"];
+    [self clearAllInstanceOfEntityWithName:@"Friend"];
+    [self clearAllInstanceOfEntityWithName:@"Like"];
+    [self clearAllInstanceOfEntityWithName:@"Checkin"];
+
 }
 
--(void)logOut{
-    [[FacebookNetwork shareFacebook].facebook logout];
-    self.managedObjectContext = nil;
-    self.fetchedResultsController = nil;
-    self.tableView.delegate = nil;
-    self.tableView.dataSource = nil;
+
+-(IBAction)loginBtn:(id)sender{
+    [FacebookNetwork shareFacebook].delegate = self;
+    [[FacebookNetwork shareFacebook] login];
+}
+
+
+#pragma mark hudDelegate -
+- (void)hudWasHidden:(MBProgressHUD *)hud_ {
+	// Remove HUD from screen when the HUD was hidded
+    
+    [hud_ removeFromSuperViewOnHide];
+    hud_ = nil;
+    
     UIStoryboard* storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
-    UIViewController* FirstViewController = [storyboard instantiateViewControllerWithIdentifier:@"LoginViewController"];
+    UIViewController* FirstViewController = [storyboard instantiateViewControllerWithIdentifier:@"MainViewController"];
+    //    [self presentModalViewController:FirstViewController animated:YES];
     [self presentViewController:FirstViewController animated:NO completion:nil];
-}
-
-#pragma mark Custom CoreData methods
-
-    // Pass Entity's name and it will clear all instance of entity
-- (void)clearAllInstanceOfEntityWithName:(NSString *)entity
-{
-    NSFetchRequest *allInstance = [[NSFetchRequest alloc] init];
-    [allInstance setEntity:[NSEntityDescription entityForName:entity inManagedObjectContext:self.managedObjectContext]];
-    
-    //only fetch the managedObjectID
-    [allInstance setIncludesPropertyValues:NO];
-    
-    NSError * error = nil;
-    NSArray * instances = [self.managedObjectContext executeFetchRequest:allInstance error:&error];
-    
-    for (NSManagedObject *instance in instances) {
-        [self.managedObjectContext deleteObject:instance];
-    }
-    
-    NSError *saveError = nil;
-    if (![self.managedObjectContext save:&saveError]) {
-        NSLog(@"Unresolved error %@, %@", saveError, [saveError userInfo]);
-        exit(-1);
-    }
-}
-
-    // This method can check the entity has a same instance or not before insert a new instance
-    // If it has same instance it will return instance
-    // If not it will return nill
-- (id)checkExistenceWithEntityName:(NSString *)name identifier:(NSString *)identifier
-{
-    NSError *error = nil;
-    NSFetchRequest *checkExistence = [[NSFetchRequest alloc] init];
-    [checkExistence setEntity:[NSEntityDescription entityForName:name inManagedObjectContext:self.managedObjectContext]];
-    [checkExistence setFetchLimit:1];
-    [checkExistence setPredicate:[NSPredicate predicateWithFormat:@"identifier == %@", identifier]];
-
-    return [[self.managedObjectContext executeFetchRequest:checkExistence error:&error] lastObject];
-}
-    // If you change data, you must call this method for save data
-- (void)saveManagedObjectContext {
-    
-    NSError *error = nil;
-    if (![self.managedObjectContext save:&error]) {
-        NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
-        exit(-1);
-    }
-}
-
-    // This method can get special instance of entity
-- (NSArray *)getInstanceWithEntityName:(NSString *)name identifier:(NSString *)identifier
-{
-    NSError *error = nil;
-    NSFetchRequest *instance = [[NSFetchRequest alloc] init];
-    [instance setEntity:[NSEntityDescription entityForName:name inManagedObjectContext:self.managedObjectContext]];
-    [instance setPredicate:[NSPredicate predicateWithFormat:@"identifier == %@", identifier]];
-    
-    return [self.managedObjectContext executeFetchRequest:instance error:&error];
-}
-
-- (NSArray *)getALLInstanceWithEntityName:(NSString *)name
-{
-    NSError *error = nil;
-    NSFetchRequest *instance = [[NSFetchRequest alloc] init];
-    [instance setEntity:[NSEntityDescription entityForName:name inManagedObjectContext:self.managedObjectContext]];
-    
-    return [self.managedObjectContext executeFetchRequest:instance error:&error];
-}
-
-#pragma mark - UITableViewDataSource
-
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
-{
-    return 1;
-}
-
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
-{
-    id sectionInfo = [[self.fetchedResultsController sections] objectAtIndex:section];
-    return [sectionInfo numberOfObjects];
-}
-
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-//    static NSString *CellIdentifier = @"SubtitleCell";
-//    
-//    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
-//    
-    
-    
-    static NSString *CellIdentifier = @"Cell";
-    
-    Cell *mycell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
-    [self configureCell:mycell atIndexPath:indexPath];
-    
-    return mycell;
-}
-
-#pragma mark UITableViewDelegate
-
-- (void)configureCell:(Cell *)mycell atIndexPath:(NSIndexPath *)indexPath
-{
-    
-//    Friend *friend = [self.fetchedResultsController objectAtIndexPath:indexPath];
-//    
-//    NSLog(@"%@",friend);
-//    cell.backgroundColor = [UIColor clearColor];
-//    cell.textLabel.text = friend.name;
-//    cell.detailTextLabel.text = [NSString stringWithFormat:@"%d score", [friend.sumOfScore intValue]];
-    
-    Friend *friend = [self.fetchedResultsController objectAtIndexPath:indexPath];
-    
-    NSLog(@"%@",friend);
-    [mycell.image loadRequestURL:[NSString stringWithFormat:@"http://graph.facebook.com/%@/picture?type=square",friend.identifier] user_id:friend.identifier];
-    mycell.backgroundColor = [UIColor clearColor];
-    mycell.title.text = friend.name;
-    mycell.subtitle.text = [NSString stringWithFormat:@"%d score", [friend.sumOfScore intValue]];
-
-}
-
--(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-    [tableView deselectRowAtIndexPath:indexPath animated:YES];
-    UIStoryboard* storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
-    UIViewController* FirstViewController = [storyboard instantiateViewControllerWithIdentifier:@"DetialViewController"];
-    [self.navigationController pushViewController:FirstViewController animated:YES];
-
 }
 
 #pragma mark - facebookDelegate
@@ -261,7 +133,17 @@
 -(void)facebookLoginSuccess {
     NSLog(@"loginSuccess");
     [[FacebookNetwork shareFacebook]requestMyLike];
-    //    [[FacebookNetwork shareFacebook] requestFriendInfo];
+    
+    //讀取進度
+    hud = [[MBProgressHUD alloc] initWithView:self.view];
+    [self.view addSubview:hud];
+    hud.labelText = @"Loading";
+    
+    hud.color = [UIColor colorWithRed:80.0/255.0 green:68.0/255.0 blue:57.0/255.0 alpha:0.9];
+    hud.delegate = self;
+    hud.minSize = CGSizeMake(173, 173);
+    [hud show:YES];
+
 }
 
 -(void)facebookRequestDidFinish:(id)result {
@@ -269,7 +151,8 @@
         NSLog(@"getMyLikes");
         /*=================自己按贊資料============================*/
         NSString *myID = [result objectForKey:@"id"];
-
+        [[NSUserDefaults standardUserDefaults] setObject:myID forKey:@"loginUID"];
+        
         // Create user data and save it to database
         
         User *user = [self checkExistenceWithEntityName:@"User" identifier:myID];
@@ -279,7 +162,7 @@
             if (user != nil) {
                 
                 user.identifier = myID;
-//                user.name = ?;        
+                //                user.name = ?;
             } else {
                 NSLog(@"Failed to create the new object");
             }
@@ -298,7 +181,7 @@
                     
                     like.identifier = likeID;
                     like.name = [dic objectForKey:@"name"];
-
+                    
                 } else {
                     NSLog(@"Failed to create the new object");
                 }
@@ -308,41 +191,42 @@
             
             [mylikes addObject:like];
         }
-//        NSLog(@"mylikes%@",mylikes);
+        //        NSLog(@"mylikes%@",mylikes);
         [[FacebookNetwork shareFacebook] requestMyCheckins];
         
     }else if ([FacebookNetwork shareFacebook].fbState == FacebookStateTypeMyCheckins) {
         NSLog(@"getMyCheckins");
         /*=================自己打卡資料============================*/
-            NSArray* data = [((NSDictionary*)[result objectForKey:@"checkins"]) objectForKey:@"data"];
-            for (NSDictionary *dic in data) {
-                
-                NSDictionary *place = [dic objectForKey:@"place"];
-                NSString *placeID = [place objectForKey:@"id"];
-                Checkin *checkin = [self checkExistenceWithEntityName:@"Checkin" identifier:placeID];
-                if (checkin == nil) {
-                    checkin = (Checkin *)[NSEntityDescription insertNewObjectForEntityForName:@"Checkin" inManagedObjectContext:self.managedObjectContext];
-                    if (checkin != nil) {
-                        
-                        checkin.identifier = placeID;
-                        checkin.name = [place objectForKey:@"name"];
-                        
-                    } else {
-                        NSLog(@"Failed to create the new object");
-                    }
+        NSArray* data = [((NSDictionary*)[result objectForKey:@"checkins"]) objectForKey:@"data"];
+        for (NSDictionary *dic in data) {
+            
+            NSDictionary *place = [dic objectForKey:@"place"];
+            NSString *placeID = [place objectForKey:@"id"];
+            Checkin *checkin = [self checkExistenceWithEntityName:@"Checkin" identifier:placeID];
+            if (checkin == nil) {
+                checkin = (Checkin *)[NSEntityDescription insertNewObjectForEntityForName:@"Checkin" inManagedObjectContext:self.managedObjectContext];
+                if (checkin != nil) {
+                    
+                    checkin.identifier = placeID;
+                    checkin.name = [place objectForKey:@"name"];
+                    
+                } else {
+                    NSLog(@"Failed to create the new object");
                 }
-                
-                [self.user addCheckinsObject:checkin];
-                [self saveManagedObjectContext];
-                
-                [mycheckins addObject:checkin];
             }
-//        NSLog(@"mycheckins%@",mycheckins);
-            [[FacebookNetwork shareFacebook] requestFriendInfo];
+            
+            [self.user addCheckinsObject:checkin];
+            [self saveManagedObjectContext];
+            
+            [mycheckins addObject:checkin];
+        }
+        //        NSLog(@"mycheckins%@",mycheckins);
+        [[FacebookNetwork shareFacebook] requestFriendInfo];
     }else if ([FacebookNetwork shareFacebook].fbState == FacebookStateTypeFriendList) {
+        [hud setLabelText:[NSString stringWithFormat:@"0/%d",loadFriendLimit*2]];
         /*=================朋友資料============================*/
         NSLog(@"getFriendData");
-//        loadFriendLimit = 1;
+        //        loadFriendLimit = 1;
         NSArray* data = [result objectForKey:@"data"];
         for (NSDictionary *friendID in data) {
             NSString *fID = [friendID objectForKey:@"id"];
@@ -354,7 +238,7 @@
                     
                     friend.identifier = fID;
                     friend.name = [friendID objectForKey:@"name"];
-
+                    
                 } else {
                     NSLog(@"Failed to create the new object");
                 }
@@ -364,20 +248,21 @@
             [friendlist addObject:friend];
         }
         getCount = 0;
-//        for (NSDictionary *dic in friendlist) {
+        //        for (NSDictionary *dic in friendlist) {
         if (loadFriendLimit >[friendlist count]) {
             loadFriendLimit = [friendlist count];
         }
         for (int i=0 ; i<loadFriendLimit ;i++) {
-//            NSDictionary *dic = [friendlist objectAtIndex:i];
-//            [[FacebookNetwork shareFacebook] requestFriendLikeBYUID:[dic objectForKey:@"id"]];
+            //            NSDictionary *dic = [friendlist objectAtIndex:i];
+            //            [[FacebookNetwork shareFacebook] requestFriendLikeBYUID:[dic objectForKey:@"id"]];
             Friend *friendData = friendlist[i];
             [[FacebookNetwork shareFacebook] requestFriendLikeBYUID:friendData.identifier];
         }
-//        NSLog(@"friend :  %@",friendlist);
+        //        NSLog(@"friend :  %@",friendlist);
     }else if ([FacebookNetwork shareFacebook].fbState == FacebookStateTypeFriendLikes){
         /*=================朋友按贊資料============================*/
         getCount++;
+        [hud setLabelText:[NSString stringWithFormat:@"%d/%d",getCount,loadFriendLimit*2]];
         NSString *fID = [result objectForKey:@"id"];
         NSArray* data = [((NSDictionary*)[result objectForKey:@"likes"]) objectForKey:@"data"];
         NSLog(@"likes-------%@-------",fID);
@@ -405,21 +290,22 @@
         }
         [friendlikes addObject:likes];
         
-//        if (getCount >= [friendlist count]) {
+        //        if (getCount >= [friendlist count]) {
         
         if (getCount >= loadFriendLimit) {
             getCount = 0;
-//            for (NSDictionary *dic in friendlist) {
-//                [[FacebookNetwork shareFacebook] requestFriendCheckinsBYUID:[dic objectForKey:@"id"]];
-//            }
+            //            for (NSDictionary *dic in friendlist) {
+            //                [[FacebookNetwork shareFacebook] requestFriendCheckinsBYUID:[dic objectForKey:@"id"]];
+            //            }
             for (int i=0 ; i<loadFriendLimit ;i++) {
                 Friend *friend = friendlist[i];
                 [[FacebookNetwork shareFacebook] requestFriendCheckinsBYUID:friend.identifier];
             }
-        
+            
         }
     } else if([FacebookNetwork shareFacebook].fbState == FacebookStateTypeFriendCheckins){
         getCount++;
+        [hud setLabelText:[NSString stringWithFormat:@"%d/%d",getCount+loadFriendLimit,loadFriendLimit*2]];
         /*=================朋友打卡資料============================*/
         
         NSString *fID = [result objectForKey:@"id"];
@@ -451,9 +337,9 @@
         }
         [friendcheckins addObject:checkins];
         
-//        if (getCount >= [friendlist count]) {
+        //        if (getCount >= [friendlist count]) {
         
-//        loadFriendLimit = [friendlist count];
+        //        loadFriendLimit = [friendlist count];
         if (getCount >= loadFriendLimit) {
             getCount = 0;
             [self loadDataFinish];
@@ -461,13 +347,20 @@
     }
 }
 
+
 -(void)loadDataFinish {
+    
+    hud.customView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"check.png"]];
+    hud.mode = MBProgressHUDModeCustomView;
+    hud.labelText = @"Completed";
+    [hud hide:YES afterDelay:1.0];
+    
     NSLog(@"loadDataFinish");
     NSLog(@"friend :%@",friendlist);
     /* friendlist 是一個Array，裡面存Friend */
     NSLog(@"friendlike :%@",friendlikes);
     /* friendlikes 是一個NSMutableArray裡面存著friendlist的排序對應到的第幾個好友的全部likes
-        一樣是用NSMutableArray，裡面存Like
+     一樣是用NSMutableArray，裡面存Like
      */
     NSLog(@"friendcheckin :%@",friendcheckins);
     /* friendcheckins 是一個NSMutableArray裡面存著friendlist的排序對應到的第幾個好友的全部checkins
@@ -479,7 +372,7 @@
     NSLog(@"MyCheckIns count: %d", mycheckins.count);
     
     NSUInteger compareNumber = 0;
-//    for (int theIndex = 0; theIndex < friendlist.count; theIndex++) {
+    //    for (int theIndex = 0; theIndex < friendlist.count; theIndex++) {
     for (int theIndex = 0; theIndex < loadFriendLimit; theIndex++) {
         NSArray *fLikes = friendlikes[theIndex];
         NSUInteger sameLikes = 0;
@@ -524,70 +417,79 @@
         }
     }
     self.fetchedResultsController = nil;
-    [self.tableView reloadData];
     
     NSLog(@"Compare Finished, Time: %@", [NSDate date]);
+    
 }
 
-#pragma mark NSFetchedResultsControllerDelegate
+#pragma mark Custom CoreData methods
 
-- (void)controllerWillChangeContent:(NSFetchedResultsController *)controller {
-    // The fetch controller is about to start sending change notifications, so prepare the table view for updates.
-    [self.tableView beginUpdates];
-}
-
-
-- (void)controller:(NSFetchedResultsController *)controller didChangeObject:(id)anObject atIndexPath:(NSIndexPath *)indexPath forChangeType:(NSFetchedResultsChangeType)type newIndexPath:(NSIndexPath *)newIndexPath {
+// Pass Entity's name and it will clear all instance of entity
+- (void)clearAllInstanceOfEntityWithName:(NSString *)entity
+{
+    NSFetchRequest *allInstance = [[NSFetchRequest alloc] init];
+    [allInstance setEntity:[NSEntityDescription entityForName:entity inManagedObjectContext:self.managedObjectContext]];
     
-    UITableView *tableView = self.tableView;
+    //only fetch the managedObjectID
+    [allInstance setIncludesPropertyValues:NO];
     
-    switch(type) {
-            
-        case NSFetchedResultsChangeInsert:
-            [tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:newIndexPath] withRowAnimation:UITableViewRowAnimationFade];
-            break;
-            
-        case NSFetchedResultsChangeDelete:
-            [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-            break;
-            
-        case NSFetchedResultsChangeUpdate:
-            [self configureCell:[tableView cellForRowAtIndexPath:indexPath] atIndexPath:indexPath];
-            break;
-            
-        case NSFetchedResultsChangeMove:
-            [tableView deleteRowsAtIndexPaths:[NSArray
-                                               arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-            [tableView insertRowsAtIndexPaths:[NSArray
-                                               arrayWithObject:newIndexPath] withRowAnimation:UITableViewRowAnimationFade];
-            break;
+    NSError * error = nil;
+    NSArray * instances = [self.managedObjectContext executeFetchRequest:allInstance error:&error];
+    
+    for (NSManagedObject *instance in instances) {
+        [self.managedObjectContext deleteObject:instance];
+    }
+    
+    NSError *saveError = nil;
+    if (![self.managedObjectContext save:&saveError]) {
+        NSLog(@"Unresolved error %@, %@", saveError, [saveError userInfo]);
+        exit(-1);
     }
 }
 
-
-- (void)controller:(NSFetchedResultsController *)controller didChangeSection:(id)sectionInfo atIndex:(NSUInteger)sectionIndex forChangeType:(NSFetchedResultsChangeType)type {
+// This method can check the entity has a same instance or not before insert a new instance
+// If it has same instance it will return instance
+// If not it will return nill
+- (id)checkExistenceWithEntityName:(NSString *)name identifier:(NSString *)identifier
+{
+    NSError *error = nil;
+    NSFetchRequest *checkExistence = [[NSFetchRequest alloc] init];
+    [checkExistence setEntity:[NSEntityDescription entityForName:name inManagedObjectContext:self.managedObjectContext]];
+    [checkExistence setFetchLimit:1];
+    [checkExistence setPredicate:[NSPredicate predicateWithFormat:@"identifier == %@", identifier]];
     
-    switch(type) {
-            
-        case NSFetchedResultsChangeInsert:
-            [self.tableView insertSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationFade];
-            break;
-            
-        case NSFetchedResultsChangeDelete:
-            [self.tableView deleteSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationFade];
-            break;
+    return [[self.managedObjectContext executeFetchRequest:checkExistence error:&error] lastObject];
+}
+// If you change data, you must call this method for save data
+- (void)saveManagedObjectContext {
+    
+    NSError *error = nil;
+    if (![self.managedObjectContext save:&error]) {
+        NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+        exit(-1);
     }
 }
 
-
-- (void)controllerDidChangeContent:(NSFetchedResultsController *)controller {
-    // The fetch controller has sent all current change notifications, so tell the table view to process all updates.
-    [self.tableView endUpdates];
+// This method can get special instance of entity
+- (NSArray *)getInstanceWithEntityName:(NSString *)name identifier:(NSString *)identifier
+{
+    NSError *error = nil;
+    NSFetchRequest *instance = [[NSFetchRequest alloc] init];
+    [instance setEntity:[NSEntityDescription entityForName:name inManagedObjectContext:self.managedObjectContext]];
+    [instance setPredicate:[NSPredicate predicateWithFormat:@"identifier == %@", identifier]];
+    
+    return [self.managedObjectContext executeFetchRequest:instance error:&error];
 }
 
-- (void)viewDidUnload {
-    [self setTableView:nil];
-    [super viewDidUnload];
+- (NSArray *)getALLInstanceWithEntityName:(NSString *)name
+{
+    NSError *error = nil;
+    NSFetchRequest *instance = [[NSFetchRequest alloc] init];
+    [instance setEntity:[NSEntityDescription entityForName:name inManagedObjectContext:self.managedObjectContext]];
+    
+    return [self.managedObjectContext executeFetchRequest:instance error:&error];
 }
+
+
 
 @end
