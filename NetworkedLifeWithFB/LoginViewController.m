@@ -5,136 +5,114 @@
 //  Created by yang on 13/5/17.
 //  Copyright (c) 2013年 YiBin. All rights reserved.
 //
-#import "MainAppDelegate.h"
+
 #import "LoginViewController.h"
-#import "FacebookNetwork.h"
+#import "MainAppDelegate.h"
 #import "User.h"
 #import "Friend.h"
 #import "Like.h"
 #import "Checkin.h"
+#import "Cell.h"
+#import <FacebookSDK/FacebookSDK.h>
 #import "MBProgressHUD.h"
 
-@interface LoginViewController ()<facebookDelegate,NSFetchedResultsControllerDelegate,MBProgressHUDDelegate>{
-    NSMutableArray *friendlist;
-    NSMutableArray *friendlikes;
-    NSMutableArray *friendcheckins;
-    NSMutableArray *mycheckins;
-    NSMutableArray *mylikes;
-    int getCount;
+@interface LoginViewController () <MBProgressHUDDelegate> {    
+    int currentFriendCount;
+    int currentFriendLikeCount;
+    int currentFriendCheckinCount;
     
     int loadFriendLimit;
     
-    MBProgressHUD*      hud;
+    MBProgressHUD *hud;
 }
-@property (nonatomic, strong) User *user;
+
+@property (nonatomic, strong) MainAppDelegate *appDelegate;
 @property (nonatomic, strong) NSManagedObjectContext *managedObjectContext;
 @property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
 
+-(IBAction)loginBtn:(id)sender;
 
-
+- (void)clearWholeDatabase;
 - (void)clearAllInstanceOfEntityWithName:(NSString *)entity;
 - (id)checkExistenceWithEntityName:(NSString *)name identifier:(NSString *)identifier;
 - (void)saveManagedObjectContext;
+- (NSArray *)getInstanceWithEntityName:(NSString *)name identifier:(NSString *)identifier;
+- (NSArray *)getAllInstanceWithEntityName:(NSString *)name;
 
--(void)loadDataFinish;
+- (void)sendFBRequestForUser;
+- (void)requestCompletedForUser:(FBRequestConnection *)connection result:(id)result error:(NSError *)error;
+
+- (void)sendFBRequestForLikesOfUser:(User *)user;
+- (void)requestCompletedForLikes:(FBRequestConnection *)connection withUser:(User *)user result:(id)result error:(NSError *)error;
+
+- (void)sendFBRequestForCheckinsOfUser:(User *)user;
+- (void)requestCompletedForCheckins:(FBRequestConnection *)connection withUser:(User *)user result:(id)result error:(NSError *)error;
+
+- (void)sendFBRequestForFirendsWithUser:(User *)user;
+- (void)requestCompletedForFriends:(FBRequestConnection *)connection withUser:(User *)user result:(id)result error:(NSError *)error;
+
+/*!
+ @method
+ When you want to use sendFBRequestForLikesOfFriends: or sendFBRequestForCheckinsOfFriends:
+ @param [friends count] must <= 50
+ */
+- (void)sendFBRequestForLikesOfFriends:(NSArray *)friends;
+- (void)requestCompletedForLikes:(FBRequestConnection *)connection withFriend:(Friend *)friend result:(id)result error:(NSError *)error;
+
+- (void)sendFBRequestForCheckinsOfFriends:(NSArray *)friends;
+- (void)requestCompletedForCheckins:(FBRequestConnection *)connection withFriend:(Friend *)friend result:(id)result error:(NSError *)error;
 
 @end
 
 @implementation LoginViewController
 
-#pragma mark - getter
-
-- (NSFetchedResultsController *)fetchedResultsController
-{
-    if (_fetchedResultsController != nil) {
-        return _fetchedResultsController;
-    }
-    
-    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-    // Edit the entity name as appropriate.
-    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Friend" inManagedObjectContext:self.managedObjectContext];
-    [fetchRequest setEntity:entity];
-    
-    // Set the batch size to a suitable number.
-    [fetchRequest setFetchBatchSize:20];
-    
-    // Edit the sort key as appropriate.
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"sumOfScore" ascending:NO];
-    NSArray *sortDescriptors = @[sortDescriptor];
-    
-    [fetchRequest setSortDescriptors:sortDescriptors];
-    
-    // Edit the section name key path and cache name if appropriate.
-    // nil for section name key path means "no sections".
-    NSFetchedResultsController *aFetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:self.managedObjectContext sectionNameKeyPath:nil cacheName:@"Root"];
-    aFetchedResultsController.delegate = self;
-    self.fetchedResultsController = aFetchedResultsController;
-    
-	NSError *error = nil;
-	if (![self.fetchedResultsController performFetch:&error]) {
-        // Replace this implementation with code to handle the error appropriately.
-        // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-	    NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
-	    abort();
-	}
-    
-    return _fetchedResultsController;
-}
-
-#pragma mark view
+#pragma mark view lifecycle
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view.
-    [self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"bg.png"]]];
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"loginUID"];
     
+    [self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"bg.png"]]];
+    
+    // Init ManagedObjectContext
     MainAppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
     self.managedObjectContext = [appDelegate managedObjectContext];
-    friendlist = [[NSMutableArray alloc] init];
-    friendcheckins = [[NSMutableArray alloc] init];
-    friendlikes = [[NSMutableArray alloc] init];
-    mycheckins = [[NSMutableArray alloc] init];
-    mylikes = [[NSMutableArray alloc] init];
-    getCount = 0;
     
+    currentFriendCount = 0;
+    currentFriendLikeCount = 0;
+    currentFriendCheckinCount = 0;
     loadFriendLimit = 10;
     
-    [self clearAllInstanceOfEntityWithName:@"User"];
-    [self clearAllInstanceOfEntityWithName:@"Friend"];
-    [self clearAllInstanceOfEntityWithName:@"Like"];
-    [self clearAllInstanceOfEntityWithName:@"Checkin"];
-
+    //    [self clearAllInstanceOfEntityWithName:@"User"];
+    //    [self clearAllInstanceOfEntityWithName:@"Friend"];
+    //    [self clearAllInstanceOfEntityWithName:@"Like"];
+    //    [self clearAllInstanceOfEntityWithName:@"Checkin"];
+    [self clearWholeDatabase];
 }
 
-
--(IBAction)loginBtn:(id)sender{
-    [FacebookNetwork shareFacebook].delegate = self;
-    [[FacebookNetwork shareFacebook] login];
+-(IBAction)loginBtn:(id)sender
+{
+    if ([[FBSession activeSession] isOpen]) {
+        
+        [self sendFBRequestForUser];
+        [self showProgressHUD];
+        
+    } else {
+        [FBSession openActiveSessionWithReadPermissions:nil allowLoginUI:YES completionHandler:^(FBSession *session, FBSessionState status, NSError *error) {
+            if (error) {
+                NSLog(@"Error: %@, %@", error, [error userInfo]);
+                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error" message:error.localizedDescription delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+                [alert show];
+            } else {
+                [self sendFBRequestForUser];
+                [self showProgressHUD];
+            }
+        }];
+    }
 }
 
-
-#pragma mark hudDelegate -
-- (void)hudWasHidden:(MBProgressHUD *)hud_ {
-	// Remove HUD from screen when the HUD was hidded
-    
-    [hud_ removeFromSuperViewOnHide];
-    hud_ = nil;
-    
-    UIStoryboard* storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
-    UIViewController* FirstViewController = [storyboard instantiateViewControllerWithIdentifier:@"MainViewController"];
-    //    [self presentModalViewController:FirstViewController animated:YES];
-    [self presentViewController:FirstViewController animated:NO completion:nil];
-}
-
-#pragma mark - facebookDelegate
-
--(void)facebookLoginSuccess {
-    NSLog(@"loginSuccess");
-    [[FacebookNetwork shareFacebook]requestMyLike];
-    
-    //讀取進度
+- (void)showProgressHUD
+{
     hud = [[MBProgressHUD alloc] initWithView:self.view];
     [self.view addSubview:hud];
     hud.labelText = @"Loading";
@@ -143,286 +121,29 @@
     hud.delegate = self;
     hud.minSize = CGSizeMake(173, 173);
     [hud show:YES];
-
-}
-
--(void)facebookRequestDidFinish:(id)result {
-    if ([FacebookNetwork shareFacebook].fbState == FacebookStateTypeMyLikes) {
-        NSLog(@"getMyLikes");
-        /*=================自己按贊資料============================*/
-        NSString *myID = [result objectForKey:@"id"];
-        [[NSUserDefaults standardUserDefaults] setObject:myID forKey:@"loginUID"];
-        
-        // Create user data and save it to database
-        
-        User *user = [self checkExistenceWithEntityName:@"User" identifier:myID];
-        if (user == nil) {
-            user = (User *)[NSEntityDescription insertNewObjectForEntityForName:@"User" inManagedObjectContext:self.managedObjectContext];
-            
-            if (user != nil) {
-                
-                user.identifier = myID;
-                //                user.name = ?;
-            } else {
-                NSLog(@"Failed to create the new object");
-            }
-        }
-        self.user = user;
-        [self saveManagedObjectContext];
-        
-        NSArray* data = [((NSDictionary*)[result objectForKey:@"likes"]) objectForKey:@"data"];
-        for (NSDictionary *dic in data) {
-            NSString *likeID = [dic objectForKey:@"id"];
-            Like *like = [self checkExistenceWithEntityName:@"Like" identifier:likeID];
-            if (like == nil) {
-                like = (Like *)[NSEntityDescription insertNewObjectForEntityForName:@"Like" inManagedObjectContext:self.managedObjectContext];
-                
-                if (like != nil) {
-                    
-                    like.identifier = likeID;
-                    like.name = [dic objectForKey:@"name"];
-                    
-                } else {
-                    NSLog(@"Failed to create the new object");
-                }
-            }
-            [self.user addLikesObject:like];
-            [self saveManagedObjectContext];
-            
-            [mylikes addObject:like];
-        }
-        //        NSLog(@"mylikes%@",mylikes);
-        [[FacebookNetwork shareFacebook] requestMyCheckins];
-        
-    }else if ([FacebookNetwork shareFacebook].fbState == FacebookStateTypeMyCheckins) {
-        NSLog(@"getMyCheckins");
-        /*=================自己打卡資料============================*/
-        NSArray* data = [((NSDictionary*)[result objectForKey:@"checkins"]) objectForKey:@"data"];
-        for (NSDictionary *dic in data) {
-            
-            NSDictionary *place = [dic objectForKey:@"place"];
-            NSString *placeID = [place objectForKey:@"id"];
-            Checkin *checkin = [self checkExistenceWithEntityName:@"Checkin" identifier:placeID];
-            if (checkin == nil) {
-                checkin = (Checkin *)[NSEntityDescription insertNewObjectForEntityForName:@"Checkin" inManagedObjectContext:self.managedObjectContext];
-                if (checkin != nil) {
-                    
-                    checkin.identifier = placeID;
-                    checkin.name = [place objectForKey:@"name"];
-                    
-                } else {
-                    NSLog(@"Failed to create the new object");
-                }
-            }
-            
-            [self.user addCheckinsObject:checkin];
-            [self saveManagedObjectContext];
-            
-            [mycheckins addObject:checkin];
-        }
-        //        NSLog(@"mycheckins%@",mycheckins);
-        [[FacebookNetwork shareFacebook] requestFriendInfo];
-    }else if ([FacebookNetwork shareFacebook].fbState == FacebookStateTypeFriendList) {
-        [hud setLabelText:[NSString stringWithFormat:@"0/%d",loadFriendLimit*2]];
-        /*=================朋友資料============================*/
-        NSLog(@"getFriendData");
-        //        loadFriendLimit = 1;
-        NSArray* data = [result objectForKey:@"data"];
-        for (NSDictionary *friendID in data) {
-            NSString *fID = [friendID objectForKey:@"id"];
-            
-            Friend *friend = [self checkExistenceWithEntityName:@"Friend" identifier:fID];
-            if (friend == nil) {
-                friend = (Friend *)[NSEntityDescription insertNewObjectForEntityForName:@"Friend" inManagedObjectContext:self.managedObjectContext];
-                if (friend != nil) {
-                    
-                    friend.identifier = fID;
-                    friend.name = [friendID objectForKey:@"name"];
-                    
-                } else {
-                    NSLog(@"Failed to create the new object");
-                }
-            }
-            [self.user addFriendsObject:friend];
-            [self saveManagedObjectContext];
-            [friendlist addObject:friend];
-        }
-        getCount = 0;
-        //        for (NSDictionary *dic in friendlist) {
-        if (loadFriendLimit >[friendlist count]) {
-            loadFriendLimit = [friendlist count];
-        }
-        for (int i=0 ; i<loadFriendLimit ;i++) {
-            //            NSDictionary *dic = [friendlist objectAtIndex:i];
-            //            [[FacebookNetwork shareFacebook] requestFriendLikeBYUID:[dic objectForKey:@"id"]];
-            Friend *friendData = friendlist[i];
-            [[FacebookNetwork shareFacebook] requestFriendLikeBYUID:friendData.identifier];
-        }
-        //        NSLog(@"friend :  %@",friendlist);
-    }else if ([FacebookNetwork shareFacebook].fbState == FacebookStateTypeFriendLikes){
-        /*=================朋友按贊資料============================*/
-        getCount++;
-        [hud setLabelText:[NSString stringWithFormat:@"%d/%d",getCount,loadFriendLimit*2]];
-        NSString *fID = [result objectForKey:@"id"];
-        NSArray* data = [((NSDictionary*)[result objectForKey:@"likes"]) objectForKey:@"data"];
-        NSLog(@"likes-------%@-------",fID);
-        
-        NSMutableArray *likes = [[NSMutableArray alloc] init];
-        for (NSDictionary *dic in data) {
-            NSString *likeID = [dic objectForKey:@"id"];
-            Like *like = [self checkExistenceWithEntityName:@"Like" identifier:likeID];
-            if (like == nil) {
-                like = [NSEntityDescription insertNewObjectForEntityForName:@"Like" inManagedObjectContext:self.managedObjectContext];
-                
-                if (like != nil) {
-                    like.identifier = likeID;
-                    like.name = [dic objectForKey:@"name"];
-                } else {
-                    NSLog(@"Failed to create the new object");
-                }
-            }
-            
-            Friend *friend = [self checkExistenceWithEntityName:@"Friend" identifier:fID];
-            [friend addLikesObject:like];
-            [self saveManagedObjectContext];
-            
-            [likes addObject:like];
-        }
-        [friendlikes addObject:likes];
-        
-        //        if (getCount >= [friendlist count]) {
-        
-        if (getCount >= loadFriendLimit) {
-            getCount = 0;
-            //            for (NSDictionary *dic in friendlist) {
-            //                [[FacebookNetwork shareFacebook] requestFriendCheckinsBYUID:[dic objectForKey:@"id"]];
-            //            }
-            for (int i=0 ; i<loadFriendLimit ;i++) {
-                Friend *friend = friendlist[i];
-                [[FacebookNetwork shareFacebook] requestFriendCheckinsBYUID:friend.identifier];
-            }
-            
-        }
-    } else if([FacebookNetwork shareFacebook].fbState == FacebookStateTypeFriendCheckins){
-        getCount++;
-        [hud setLabelText:[NSString stringWithFormat:@"%d/%d",getCount+loadFriendLimit,loadFriendLimit*2]];
-        /*=================朋友打卡資料============================*/
-        
-        NSString *fID = [result objectForKey:@"id"];
-        NSArray* data = [((NSDictionary*)[result objectForKey:@"checkins"]) objectForKey:@"data"];
-        
-        NSMutableArray *checkins = [[NSMutableArray alloc] init];
-        NSLog(@"checkins-------%@-------",fID);
-        for (NSDictionary *dic in data) {
-            NSDictionary *place = [dic objectForKey:@"place"];
-            NSString *checkinID = [place objectForKey:@"id"];
-            
-            Checkin *checkin = [self checkExistenceWithEntityName:@"Checkin" identifier:checkinID];
-            if (checkin == nil) {
-                checkin = [NSEntityDescription insertNewObjectForEntityForName:@"Checkin" inManagedObjectContext:self.managedObjectContext];
-                
-                if (checkin != nil) {
-                    checkin.identifier = checkinID;
-                    checkin.name = [place objectForKey:@"name"];
-                } else {
-                    NSLog(@"Failed to create the new object");
-                }
-            }
-            
-            Friend *friend = [self checkExistenceWithEntityName:@"Friend" identifier:fID];
-            [friend addCheckinsObject:checkin];
-            [self saveManagedObjectContext];
-            
-            [checkins addObject:checkin];
-        }
-        [friendcheckins addObject:checkins];
-        
-        //        if (getCount >= [friendlist count]) {
-        
-        //        loadFriendLimit = [friendlist count];
-        if (getCount >= loadFriendLimit) {
-            getCount = 0;
-            [self loadDataFinish];
-        }
-    }
-}
-
-
--(void)loadDataFinish {
-    
-    hud.customView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"check.png"]];
-    hud.mode = MBProgressHUDModeCustomView;
-    hud.labelText = @"Completed";
-    [hud hide:YES afterDelay:1.0];
-    
-    NSLog(@"loadDataFinish");
-    NSLog(@"friend :%@",friendlist);
-    /* friendlist 是一個Array，裡面存Friend */
-    NSLog(@"friendlike :%@",friendlikes);
-    /* friendlikes 是一個NSMutableArray裡面存著friendlist的排序對應到的第幾個好友的全部likes
-     一樣是用NSMutableArray，裡面存Like
-     */
-    NSLog(@"friendcheckin :%@",friendcheckins);
-    /* friendcheckins 是一個NSMutableArray裡面存著friendlist的排序對應到的第幾個好友的全部checkins
-     一樣是用NSMutableArray，裡面存Checkin
-     */
-    NSLog(@"Download finished, Time: %@", [NSDate date]);
-    NSLog(@"Download friend count: %d", friendlist.count);
-    NSLog(@"MyLikes count: %d", mylikes.count);
-    NSLog(@"MyCheckIns count: %d", mycheckins.count);
-    
-    NSUInteger compareNumber = 0;
-    //    for (int theIndex = 0; theIndex < friendlist.count; theIndex++) {
-    for (int theIndex = 0; theIndex < loadFriendLimit; theIndex++) {
-        NSArray *fLikes = friendlikes[theIndex];
-        NSUInteger sameLikes = 0;
-        
-        // Check like id
-        for (Like *fLike in fLikes) {
-            for (Like *mLike in mylikes) {
-                if ([fLike.identifier isEqualToString:mLike.identifier]) {
-                    sameLikes++;
-                    break;
-                }
-            }
-        }
-        
-        NSUInteger sameCheckins = 0;
-        NSArray *fCheckins = friendcheckins[theIndex];
-        
-        // Check like's id
-        for (Checkin *fCheckin in fCheckins) {
-            for (Checkin *mCheckin in mycheckins) {
-                if ([fCheckin.identifier isEqualToString:mCheckin.identifier]) {
-                    sameCheckins++;
-                    break;
-                }
-            }
-        }
-        
-        // Create friend data and save it to database
-        Friend *friend = friendlist[theIndex];
-        if (friend != nil) {
-            friend.scoreOfLikes = @(sameLikes);
-            friend.scoreOfCheckins = @(sameCheckins);
-            friend.sumOfScore = @(sameLikes + sameCheckins);
-            
-            NSError *error = nil;
-            if (![self.managedObjectContext save:&error]) {
-                NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
-                exit(-1);
-            }
-        } else {
-            NSLog(@"Failed to create the new friend object");
-        }
-    }
-    self.fetchedResultsController = nil;
-    
-    NSLog(@"Compare Finished, Time: %@", [NSDate date]);
-    
 }
 
 #pragma mark Custom CoreData methods
+
+- (void)clearWholeDatabase
+{
+    NSError *error;
+    // retrieve the store URL
+    NSURL *storeURL = [[self.managedObjectContext persistentStoreCoordinator] URLForPersistentStore:[[[self.managedObjectContext persistentStoreCoordinator] persistentStores] lastObject]];
+    // lock the current context
+    [self.managedObjectContext lock];
+    [self.managedObjectContext reset];//to drop pending changes
+    //delete the store from the current managedObjectContext
+    if ([[self.managedObjectContext persistentStoreCoordinator] removePersistentStore:[[[self.managedObjectContext persistentStoreCoordinator] persistentStores] lastObject] error:&error])
+    {
+        // remove the file containing the data
+        [[NSFileManager defaultManager] removeItemAtURL:storeURL error:&error];
+        //recreate the store like in the  appDelegate method
+        [[self.managedObjectContext persistentStoreCoordinator] addPersistentStoreWithType:NSSQLiteStoreType configuration:nil URL:storeURL options:nil error:&error];//recreates the persistent store
+    }
+    [self.managedObjectContext unlock];
+    //that's it !
+}
 
 // Pass Entity's name and it will clear all instance of entity
 - (void)clearAllInstanceOfEntityWithName:(NSString *)entity
@@ -438,12 +159,7 @@
     
     for (NSManagedObject *instance in instances) {
         [self.managedObjectContext deleteObject:instance];
-    }
-    
-    NSError *saveError = nil;
-    if (![self.managedObjectContext save:&saveError]) {
-        NSLog(@"Unresolved error %@, %@", saveError, [saveError userInfo]);
-        exit(-1);
+        [self saveManagedObjectContext];
     }
 }
 
@@ -461,8 +177,8 @@
     return [[self.managedObjectContext executeFetchRequest:checkExistence error:&error] lastObject];
 }
 // If you change data, you must call this method for save data
-- (void)saveManagedObjectContext {
-    
+- (void)saveManagedObjectContext
+{
     NSError *error = nil;
     if (![self.managedObjectContext save:&error]) {
         NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
@@ -481,7 +197,7 @@
     return [self.managedObjectContext executeFetchRequest:instance error:&error];
 }
 
-- (NSArray *)getALLInstanceWithEntityName:(NSString *)name
+- (NSArray *)getAllInstanceWithEntityName:(NSString *)name
 {
     NSError *error = nil;
     NSFetchRequest *instance = [[NSFetchRequest alloc] init];
@@ -490,6 +206,394 @@
     return [self.managedObjectContext executeFetchRequest:instance error:&error];
 }
 
+#pragma mark - Custom Facebook Methods
 
+- (void)sendFBRequestForUser
+{
+    // create the connection object
+    FBRequestConnection *connection = [[FBRequestConnection alloc] init];
+    
+    // create the request object
+    FBRequest *request = [[FBRequest alloc] initWithSession:[FBSession activeSession] graphPath:@"/me?fields=id,name"];
+    
+    // add the request to the connection object, if more than one request is added
+    // the connection object will compose the requests as a batch request; whether or
+    // not the request is a batch or a singleton, the handler behavior is the same,
+    // allowing the application to be dynamic in regards to whether a single or multiple
+    // requests are occuring
+    [connection addRequest:request completionHandler:^(FBRequestConnection *connection, id result, NSError *error) {
+        [self requestCompletedForUser:connection result:result error:error];
+    }];
+    
+    [connection start];
+}
+
+- (void)requestCompletedForUser:(FBRequestConnection *)connection result:(id)result error:(NSError *)error
+{
+    //    NSLog(@"%@", result);
+    if (!error) {
+        NSString *userID = [result objectForKey:@"id"];
+        NSLog(@"User ID: %@", userID);
+        
+        User *user = [self checkExistenceWithEntityName:@"User" identifier:userID];
+        if (user == nil) {
+            user = [NSEntityDescription insertNewObjectForEntityForName:@"User" inManagedObjectContext:self.managedObjectContext];
+            
+            if (user != nil) {
+                
+                user.identifier = userID;
+                user.name = [result objectForKey:@"name"];
+            } else {
+                NSLog(@"Failed to create the new object");
+            }
+        }
+        [self saveManagedObjectContext];
+        
+        // Get details data
+        [self sendFBRequestForLikesOfUser:user];
+        [self sendFBRequestForCheckinsOfUser:user];
+        [self sendFBRequestForFirendsWithUser:user];
+        
+    } else {
+        NSLog(@"RequestCompletedForUser Error: %@, %@", error, [error userInfo]);
+    }
+}
+
+- (void)sendFBRequestForLikesOfUser:(User *)user
+{
+    FBRequestConnection *connection = [[FBRequestConnection alloc] init];
+    
+    FBRequest *request = [[FBRequest alloc] initWithSession:[FBSession activeSession] graphPath:@"/me?fields=likes"];
+    
+    [connection addRequest:request completionHandler:^(FBRequestConnection *connection, id result, NSError *error) {
+        [self requestCompletedForLikes:connection withUser:user result:result error:error];
+    }];
+    
+    [connection start];
+}
+
+- (void)requestCompletedForLikes:(FBRequestConnection *)connection withUser:(User *)user result:(id)result error:(NSError *)error
+{
+    //    NSLog(@"%@", result);
+    
+    if (!error) {
+        NSArray *data = [[result objectForKey:@"likes"] objectForKey:@"data"];
+        
+        for (NSDictionary *likeData in data) {
+            NSString *likeID = [likeData objectForKey:@"id"];
+            NSLog(@"User ID: %@, Likes: %@", user.identifier, likeID);
+            
+            Like *like = [self checkExistenceWithEntityName:@"Like" identifier:likeID];
+            if (like == nil) {
+                like = [NSEntityDescription insertNewObjectForEntityForName:@"Like" inManagedObjectContext:self.managedObjectContext];
+                
+                if (like != nil) {
+                    
+                    like.identifier = likeID;
+                    like.name = [likeData objectForKey:@"name"];
+                } else {
+                    NSLog(@"Failed to create the new object");
+                }
+            }
+            [user addLikesObject:like];
+        }
+        [self saveManagedObjectContext];
+        
+    } else {
+        NSLog(@"RequestCompletedForLikes Error: %@, %@", error, [error userInfo]);
+    }
+}
+
+- (void)sendFBRequestForCheckinsOfUser:(User *)user
+{
+    FBRequestConnection *connection = [[FBRequestConnection alloc] init];
+    
+    FBRequest *request = [[FBRequest alloc] initWithSession:[FBSession activeSession] graphPath:@"/me?fields=checkins.fields(place)"];
+    
+    [connection addRequest:request completionHandler:^(FBRequestConnection *connection, id result, NSError *error) {
+        [self requestCompletedForCheckins:connection withUser:user result:result error:error];
+    }];
+    
+    [connection start];
+}
+
+- (void)requestCompletedForCheckins:(FBRequestConnection *)connection withUser:(User *)user result:(id)result error:(NSError *)error
+{
+    //    NSLog(@"%@", result);
+    
+    if (!error) {
+        NSArray *data = [[result objectForKey:@"checkins"] objectForKey:@"data"];
+        
+        for (NSDictionary *placeDic in data) {
+            NSDictionary *place = [placeDic objectForKey:@"place"];
+            NSString *placeID = [place objectForKey:@"id"];
+            
+            NSLog(@"User ID: %@, Checkin: %@", user.identifier, placeID);
+            
+            Checkin *checkin = [self checkExistenceWithEntityName:@"Checkin" identifier:placeID];
+            if (checkin == nil) {
+                checkin = [NSEntityDescription insertNewObjectForEntityForName:@"Checkin" inManagedObjectContext:self.managedObjectContext];
+                
+                if (checkin != nil) {
+                    
+                    checkin.identifier = placeID;
+                    checkin.name = [place objectForKey:@"name"];
+                } else {
+                    NSLog(@"Failed to create the new object");
+                }
+            }
+            [user addCheckinsObject:checkin];
+        }
+        [self saveManagedObjectContext];
+        
+    } else {
+        NSLog(@"RequestCompletedForCheckins Error: %@, %@", error, [error userInfo]);
+    }
+}
+
+- (void)sendFBRequestForFirendsWithUser:(User *)user
+{
+    FBRequestConnection *connection = [[FBRequestConnection alloc] init];
+    
+    FBRequest *request = [[FBRequest alloc] initWithSession:FBSession.activeSession graphPath:@"/me?fields=friends"];
+    
+    [connection addRequest:request completionHandler:^(FBRequestConnection *connection, id result, NSError *error) {
+        [self requestCompletedForFriends:connection withUser:user result:result error:error];
+    }];
+    
+    [connection start];
+}
+
+- (void)requestCompletedForFriends:(FBRequestConnection *)connection withUser:(User *)user result:(id)result error:(NSError *)error
+{
+    //    NSLog(@"%@", result);
+    
+    if (!error) {
+        NSArray *data = [[result objectForKey:@"friends"] objectForKey:@"data"];
+        
+        NSMutableArray *friends = [[NSMutableArray alloc] init];
+        
+        for (NSDictionary *friendData in data) {
+            NSString *fID = [friendData objectForKey:@"id"];
+            
+            NSLog(@"Friend ID: %@", fID);
+            
+            Friend *friend = [self checkExistenceWithEntityName:@"Friend" identifier:fID];
+            if (friend == nil) {
+                friend = (Friend *)[NSEntityDescription insertNewObjectForEntityForName:@"Friend" inManagedObjectContext:self.managedObjectContext];
+                if (friend != nil) {
+                    
+                    friend.identifier = fID;
+                    friend.name = [friendData objectForKey:@"name"];
+                    
+                } else {
+                    NSLog(@"Failed to create the new object");
+                }
+            }
+            [user addFriendsObject:friend];
+            
+            [friends addObject:friend];
+            
+//            if (friends.count == 50) {
+            if (friends.count == loadFriendLimit) {
+                [self sendFBRequestForLikesOfFriends:friends];
+                [self sendFBRequestForCheckinsOfFriends:friends];
+                
+                friends = [[NSMutableArray alloc] init];
+                
+                break;
+            }
+        }
+        [self saveManagedObjectContext];
+    } else {
+        NSLog(@"RequestCompletedForFriends Error: %@, %@", error, [error userInfo]);
+    }
+}
+
+- (void)sendFBRequestForLikesOfFriends:(NSArray *)friends
+{
+    currentFriendLikeCount += [friends count];
+    
+    FBRequestConnection *connection = [[FBRequestConnection alloc] init];
+    
+    for (Friend *friend in friends) {
+        NSString *graphPath = [NSString stringWithFormat:@"/%@?fields=likes", friend.identifier];
+        FBRequest *request = [[FBRequest alloc] initWithSession:[FBSession activeSession] graphPath:graphPath];
+        
+        [connection addRequest:request completionHandler:^(FBRequestConnection *connection, id result, NSError *error) {
+            [self requestCompletedForLikes:connection withFriend:friend result:result error:error];
+        }];
+    }
+    
+    [connection start];
+}
+
+- (void)requestCompletedForLikes:(FBRequestConnection *)connection withFriend:(Friend *)friend result:(id)result error:(NSError *)error
+{
+    //    NSLog(@"%@", result);
+    
+    if (!error) {
+        NSArray *data = [[result objectForKey:@"likes"] objectForKey:@"data"];
+        
+        for (NSDictionary *likeData in data) {
+            NSString *likeID = [likeData objectForKey:@"id"];
+            
+            NSLog(@"Friend ID: %@, Likes: %@", friend.identifier, likeID);
+            
+            Like *like = [self checkExistenceWithEntityName:@"Like" identifier:likeID];
+            if (like == nil) {
+                like = [NSEntityDescription insertNewObjectForEntityForName:@"Like" inManagedObjectContext:self.managedObjectContext];
+                
+                if (like != nil) {
+                    
+                    like.identifier = likeID;
+                    like.name = [likeData objectForKey:@"name"];
+                } else {
+                    NSLog(@"Failed to create the new object");
+                }
+            }
+            [friend addLikesObject:like];
+        }
+        [self saveManagedObjectContext];
+        
+    } else {
+        NSLog(@"RequestCompletedForLikes Error: %@, %@", error, [error userInfo]);
+    }
+    
+    if (--currentFriendLikeCount == 0) {
+        [self compareLikes];
+    }
+}
+
+- (void)sendFBRequestForCheckinsOfFriends:(NSArray *)friends
+{
+    currentFriendCheckinCount += [friends count];
+    
+    FBRequestConnection *connection = [[FBRequestConnection alloc] init];
+    
+    for (Friend *friend in friends) {
+        NSString *graphPath = [NSString stringWithFormat:@"/%@?fields=checkins.fields(place)", friend.identifier];
+        FBRequest *request = [[FBRequest alloc] initWithSession:[FBSession activeSession] graphPath:graphPath];
+        
+        [connection addRequest:request completionHandler:^(FBRequestConnection *connection, id result, NSError *error) {
+            [self requestCompletedForCheckins:connection withFriend:friend result:result error:error];
+        }];
+    }
+    
+    [connection start];
+}
+
+- (void)requestCompletedForCheckins:(FBRequestConnection *)connection withFriend:(Friend *)friend result:(id)result error:(NSError *)error
+{
+    //    NSLog(@"%@", result);
+    
+    if (!error) {
+        NSArray *data = [[result objectForKey:@"checkins"] objectForKey:@"data"];
+        
+        for (NSDictionary *placeDic in data) {
+            NSDictionary *place = [placeDic objectForKey:@"place"];
+            NSString *placeID = [place objectForKey:@"id"];
+            
+            NSLog(@"Friend ID: %@, Checkin: %@", friend.identifier, placeID);
+            
+            Checkin *checkin = [self checkExistenceWithEntityName:@"Checkin" identifier:placeID];
+            if (checkin == nil) {
+                checkin = [NSEntityDescription insertNewObjectForEntityForName:@"Checkin" inManagedObjectContext:self.managedObjectContext];
+                
+                if (checkin != nil) {
+                    checkin.identifier = placeID;
+                    checkin.name = [place objectForKey:@"name"];
+                } else {
+                    NSLog(@"Failed to create the new object");
+                }
+            }
+            [friend addCheckinsObject:checkin];
+        }
+        [self saveManagedObjectContext];
+        
+    } else {
+        NSLog(@"RequestCompletedForCheckins Error: %@, %@", error, [error userInfo]);
+    }
+    
+    if (--currentFriendCheckinCount == 0) {
+        [self compareCheckins];
+    }
+}
+
+#pragma mark Compare Score
+
+- (void)compareLikes
+{
+    User *user = [[self getAllInstanceWithEntityName:@"User"] lastObject];
+    
+    for (Friend *friend in user.friends) {
+        int scoreOfLike = 0;
+        
+        for (Like *friendLike in friend.likes) {
+            for (Like *userLike in user.likes) {
+                if ([friendLike.identifier isEqualToString:userLike.identifier]) {
+                    scoreOfLike++;
+                }
+            }
+        }
+        
+        friend.scoreOfLikes = @(scoreOfLike);
+        int sum = [friend.sumOfScore intValue] + scoreOfLike;
+        friend.sumOfScore = @(sum);
+    }
+    [self saveManagedObjectContext];
+    NSLog(@"Compare Like finished, Time: %@", [NSDate date]);
+    [self compareAllFinished];
+}
+
+- (void)compareCheckins
+{
+    User *user = [[self getAllInstanceWithEntityName:@"User"] lastObject];
+    
+    for (Friend *friend in user.friends) {
+        int scoreOfCheckin = 0;
+        
+        for (Checkin *friendCheckin in friend.checkins) {
+            for (Checkin *userCheckin in user.checkins) {
+                if ([friendCheckin.identifier isEqualToString:userCheckin.identifier]) {
+                    scoreOfCheckin++;
+                }
+            }
+        }
+        
+        friend.scoreOfCheckins = @(scoreOfCheckin);
+        int sum = [friend.sumOfScore intValue] + scoreOfCheckin;
+        friend.sumOfScore = @(sum);
+    }
+    [self saveManagedObjectContext];
+    NSLog(@"Compare Checkin finished, Time: %@", [NSDate date]);
+    [self compareAllFinished];
+}
+
+- (void)compareAllFinished
+{
+    if ((currentFriendLikeCount == 0) && (currentFriendCheckinCount == 0)) {
+        [self saveManagedObjectContext];
+        
+        hud.customView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"check.png"]];
+        hud.mode = MBProgressHUDModeCustomView;
+        hud.labelText = @"Completed";
+        [hud hide:YES afterDelay:1.0];
+    }
+}
+
+#pragma mark - hudDelegate
+
+- (void)hudWasHidden:(MBProgressHUD *)hud_ {
+	// Remove HUD from screen when the HUD was hidded
+    
+    [hud_ removeFromSuperViewOnHide];
+    hud_ = nil;
+    
+    UIStoryboard* storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
+    UIViewController* FirstViewController = [storyboard instantiateViewControllerWithIdentifier:@"MainViewController"];
+    //    [self presentModalViewController:FirstViewController animated:YES];
+    [self presentViewController:FirstViewController animated:NO completion:nil];
+}
 
 @end

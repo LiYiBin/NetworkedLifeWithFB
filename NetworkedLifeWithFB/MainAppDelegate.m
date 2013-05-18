@@ -7,7 +7,7 @@
 //
 
 #import "MainAppDelegate.h"
-#import "FacebookNetwork.h"
+#import <FacebookSDK/FacebookSDK.h>
 
 @interface MainAppDelegate ()
 
@@ -46,17 +46,29 @@
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+
+    [FBAppCall handleDidBecomeActive];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application
 {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    
+    // It is important to close any FBSession object that is no longer useful
+    [FBSession.activeSession close];
 }
+#pragma mark - Facebook
 
+// In the login workflow, the Facebook native application, or Safari will transition back to
+// this applicaiton via a url following the scheme fb[app id]://; the call to handleOpenURL
+// below captures the token, in the case of success, on behalf of the FBSession object
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url
   sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
-    return [[FacebookNetwork shareFacebook].facebook handleOpenURL:url];
+    return [FBAppCall handleOpenURL:url
+                  sourceApplication:sourceApplication];
 }
+
+#pragma mark - Core Data stack
 
 - (void)saveContext
 {
@@ -71,8 +83,6 @@
         }
     }
 }
-
-#pragma mark - Core Data stack
 
 // Returns the managed object context for the application.
 // If the context doesn't already exist, it is created and bound to the persistent store coordinator for the application.
