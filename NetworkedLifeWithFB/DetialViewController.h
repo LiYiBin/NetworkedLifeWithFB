@@ -11,7 +11,10 @@
 #import "User.h"
 #import "MoPhotograph.h"
 
-@interface DetialViewController : UIViewController
+@interface DetialViewController : UIViewController{
+    IBOutlet UIButton*  like;
+    IBOutlet UIButton*  location;
+}
 
 @property(nonatomic,readwrite,retain)Friend *friends;
 @property(nonatomic,readwrite,retain)User *user;

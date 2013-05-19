@@ -16,12 +16,13 @@
 #import <FacebookSDK/FacebookSDK.h>
 #import "MBProgressHUD.h"
 
-@interface LoginViewController () <MBProgressHUDDelegate> {    
+
+#define loadFriendLimit 50
+
+@interface LoginViewController () <MBProgressHUDDelegate> {
     int currentFriendCount;
     int currentFriendLikeCount;
     int currentFriendCheckinCount;
-    
-    int loadFriendLimit;
     
     MBProgressHUD *hud;
 }
@@ -81,18 +82,19 @@
     currentFriendCount = 0;
     currentFriendLikeCount = 0;
     currentFriendCheckinCount = 0;
-    loadFriendLimit = 50;
     
     [self clearWholeDatabase];
     [self.navigationController.visibleViewController setTitle:@"大家愛什麼"];
+    
+    [self loginBtn:nil];
 }
 
 -(IBAction)loginBtn:(id)sender
 {
     if ([[FBSession activeSession] isOpen]) {
-        
-        [self sendFBRequestForUser];
-        [self showProgressHUD];
+        [self hudWasHidden:nil];
+//        [self sendFBRequestForUser];
+//        [self showProgressHUD];
         
     } else {
         [FBSession openActiveSessionWithReadPermissions:nil allowLoginUI:YES completionHandler:^(FBSession *session, FBSessionState status, NSError *error) {
@@ -589,8 +591,8 @@
     
     UIStoryboard* storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
     UIViewController* FirstViewController = [storyboard instantiateViewControllerWithIdentifier:@"MainViewController"];
-    //    [self presentModalViewController:FirstViewController animated:YES];
-    [self presentViewController:FirstViewController animated:NO completion:nil];
+    FirstViewController.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+    [self presentViewController:FirstViewController animated:YES completion:nil];
 }
 
 @end

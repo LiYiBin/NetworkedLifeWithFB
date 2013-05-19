@@ -16,8 +16,17 @@
 
     photoSize = MoPhotographSize180x180;
     
-    [self.layer setCornerRadius:3];
-    [self.layer setMasksToBounds:YES];
+    [self.layer setCornerRadius:5];
+    [self.layer setShadowColor:[UIColor blackColor].CGColor];
+    [[self layer] setShadowOpacity:0.7f];
+    [[self layer] setShadowOffset:CGSizeMake(1.0, 1.0)];
+    [self.layer setShadowRadius:5];
+    
+    
+    [[self layer] setShadowPath:[UIBezierPath bezierPathWithRoundedRect:self.bounds cornerRadius:5].CGPath];
+    
+    [self setClipsToBounds:YES];
+//    [self.layer setMasksToBounds:YES];
 //    uid_ = [NSString stringWithString:uid];
     uid_ = [NSString stringWithFormat:@"%@",uid];
     

@@ -231,6 +231,8 @@
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     UIStoryboard* storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
     DetialViewController* FirstViewController = [storyboard instantiateViewControllerWithIdentifier:@"DetialViewController"];
+    
+//    FirstViewController.navigationController.title = self.
     FirstViewController.friends = [self.fetchedResultsController objectAtIndexPath:indexPath];
     FirstViewController.user = [[self getAllInstanceWithEntityName:@"User"] lastObject];
     [self.navigationController pushViewController:FirstViewController animated:YES];

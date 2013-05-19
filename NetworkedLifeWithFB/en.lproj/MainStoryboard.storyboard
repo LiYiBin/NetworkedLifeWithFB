@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="3084" systemVersion="12D78" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="wA5-Yf-C2L">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="3084" systemVersion="11G63" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="wA5-Yf-C2L">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="2083"/>
     </dependencies>
@@ -8,6 +8,7 @@
         <scene sceneID="FyH-zd-DKl">
             <objects>
                 <navigationController storyboardIdentifier="MainViewController" definesPresentationContext="YES" id="wA5-Yf-C2L" sceneMemberID="viewController">
+                    <nil key="simulatedStatusBarMetrics"/>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" barStyle="blackOpaque" prompted="NO"/>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" barStyle="blackOpaque" id="loE-XQ-tZm">
@@ -69,7 +70,7 @@
                                                         <constraint firstAttribute="height" constant="5" id="5UY-Vu-qg9"/>
                                                     </constraints>
                                                 </imageView>
-                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="bg.png" translatesAutoresizingMaskIntoConstraints="NO" id="PgJ-Wb-rgo" customClass="MoPhotograph">
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" image="bg.png" translatesAutoresizingMaskIntoConstraints="NO" id="PgJ-Wb-rgo" customClass="MoPhotograph">
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="50" id="7Cm-Oa-Sav"/>
                                                         <constraint firstAttribute="height" constant="50" id="DHe-AV-ztB"/>
@@ -126,16 +127,16 @@
             <objects>
                 <viewController storyboardIdentifier="DetialViewController" id="smo-gI-U5C" customClass="DetialViewController" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="fEH-EV-XKQ">
-                        <rect key="frame" x="0.0" y="64" width="320" height="416"/>
+                        <rect key="frame" x="0.0" y="44" width="320" height="436"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="line.png" translatesAutoresizingMaskIntoConstraints="NO" id="Mhg-Dt-9V9" customClass="MoPhotograph">
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" image="Default.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="Mhg-Dt-9V9" customClass="MoPhotograph">
                                 <constraints>
                                     <constraint firstAttribute="width" constant="70" id="1SF-OA-e9l"/>
                                     <constraint firstAttribute="height" constant="70" id="2hh-2b-Wkj"/>
                                 </constraints>
                             </imageView>
-                            <imageView userInteractionEnabled="NO" alpha="0.5" contentMode="scaleToFill" image="bg2.png" translatesAutoresizingMaskIntoConstraints="NO" id="rqp-Zt-wji">
+                            <imageView hidden="YES" userInteractionEnabled="NO" alpha="0.5" contentMode="scaleToFill" image="bg2.png" translatesAutoresizingMaskIntoConstraints="NO" id="rqp-Zt-wji">
                                 <constraints>
                                     <constraint firstAttribute="width" constant="318" id="M9C-eN-fd0"/>
                                     <constraint firstAttribute="height" constant="350" id="wcF-p8-gBZ"/>
@@ -178,14 +179,14 @@
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dQk-aN-Bf9">
                                 <constraints>
                                     <constraint firstAttribute="width" constant="56" id="CZe-T9-civ"/>
-                                    <constraint firstAttribute="height" constant="44" id="fZD-nC-xe2"/>
+                                    <constraint firstAttribute="height" constant="49" id="rk8-eH-j2z"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
-                                <state key="normal" title="讚" backgroundImage="button.jpg">
+                                <state key="normal" image="LikeIcon.jpg" backgroundImage="button.jpg">
                                     <color key="titleColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
-                                <state key="highlighted">
+                                <state key="highlighted" image="LikeIcon.jpg">
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
@@ -197,11 +198,11 @@
                                     <constraint firstAttribute="width" constant="56" id="KVr-C0-M5d"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
-                                <state key="normal" title="打卡" backgroundImage="button.jpg">
+                                <state key="normal" image="LocationIcon.jpg" backgroundImage="button.jpg">
                                     <color key="titleColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
-                                <state key="highlighted">
+                                <state key="highlighted" image="LocationIcon.jpg">
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
@@ -220,21 +221,22 @@
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
-                            <constraint firstItem="rqp-Zt-wji" firstAttribute="top" secondItem="73h-EK-BUZ" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="4QI-PI-CbR"/>
+                            <constraint firstItem="rqp-Zt-wji" firstAttribute="top" secondItem="dQk-aN-Bf9" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="6VR-YI-uMH"/>
                             <constraint firstItem="Mhg-Dt-9V9" firstAttribute="top" secondItem="fEH-EV-XKQ" secondAttribute="top" constant="6" id="Air-dY-5mB"/>
-                            <constraint firstItem="rqp-Zt-wji" firstAttribute="top" secondItem="dQk-aN-Bf9" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="HZV-Ft-Jq8"/>
+                            <constraint firstItem="rqp-Zt-wji" firstAttribute="centerX" secondItem="fEH-EV-XKQ" secondAttribute="centerX" type="default" id="AoT-88-bUC"/>
+                            <constraint firstAttribute="trailing" secondItem="73h-EK-BUZ" secondAttribute="trailing" constant="48" id="JEC-uJ-aHP"/>
                             <constraint firstItem="MhG-eD-6oj" firstAttribute="top" secondItem="fEH-EV-XKQ" secondAttribute="top" constant="91" id="Nli-Zl-ZGD"/>
                             <constraint firstItem="cQY-vK-uiK" firstAttribute="top" secondItem="fEH-EV-XKQ" secondAttribute="top" constant="121" id="Ohh-DM-f7e"/>
                             <constraint firstItem="cQY-vK-uiK" firstAttribute="leading" secondItem="Mhg-Dt-9V9" secondAttribute="leading" type="default" id="Q27-L4-Ga1"/>
-                            <constraint firstItem="73h-EK-BUZ" firstAttribute="top" secondItem="dQk-aN-Bf9" secondAttribute="top" type="default" id="WGW-eB-G7l"/>
                             <constraint firstItem="MhG-eD-6oj" firstAttribute="centerX" secondItem="cQY-vK-uiK" secondAttribute="centerX" type="default" id="Xga-hm-UZs"/>
                             <constraint firstItem="Mhg-Dt-9V9" firstAttribute="leading" secondItem="fEH-EV-XKQ" secondAttribute="leading" constant="22" id="Xzz-X0-EYC"/>
-                            <constraint firstAttribute="trailing" secondItem="73h-EK-BUZ" secondAttribute="trailing" constant="55" id="YvZ-fI-wdw"/>
-                            <constraint firstItem="dQk-aN-Bf9" firstAttribute="top" secondItem="fEH-EV-XKQ" secondAttribute="top" constant="17" id="Zh7-xB-KDz"/>
-                            <constraint firstItem="dQk-aN-Bf9" firstAttribute="leading" secondItem="fEH-EV-XKQ" secondAttribute="leading" constant="130" id="nSq-Eg-4Zh"/>
-                            <constraint firstItem="rqp-Zt-wji" firstAttribute="trailing" secondItem="fEH-EV-XKQ" secondAttribute="trailing" type="default" id="tVT-1L-2yZ"/>
+                            <constraint firstItem="dQk-aN-Bf9" firstAttribute="leading" secondItem="fEH-EV-XKQ" secondAttribute="leading" constant="133" id="ahv-LO-Epc"/>
+                            <constraint firstItem="73h-EK-BUZ" firstAttribute="top" secondItem="fEH-EV-XKQ" secondAttribute="top" constant="20" symbolic="YES" type="default" id="fY5-pG-GOd"/>
+                            <constraint firstItem="dQk-aN-Bf9" firstAttribute="top" secondItem="fEH-EV-XKQ" secondAttribute="top" constant="20" symbolic="YES" type="default" id="krN-Ml-ceX"/>
+                            <constraint firstItem="rqp-Zt-wji" firstAttribute="top" secondItem="73h-EK-BUZ" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="nCt-Dq-FVQ"/>
                         </constraints>
                     </view>
+                    <nil key="simulatedStatusBarMetrics"/>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" barStyle="blackOpaque" prompted="NO"/>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics"/>
                     <connections>
@@ -293,6 +295,7 @@
             <objects>
                 <navigationController storyboardIdentifier="LoginViewController" id="TpS-Xa-eUL" sceneMemberID="viewController">
                     <toolbarItems/>
+                    <nil key="simulatedStatusBarMetrics"/>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" barStyle="blackOpaque" prompted="NO"/>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" barStyle="blackOpaque" id="e5A-6r-n1h">
@@ -310,6 +313,9 @@
         </scene>
     </scenes>
     <resources>
+        <image name="Default.jpg" width="160" height="160"/>
+        <image name="LikeIcon.jpg" width="300" height="285"/>
+        <image name="LocationIcon.jpg" width="134" height="134"/>
         <image name="bg.png" width="68" height="64"/>
         <image name="bg2.png" width="300" height="400"/>
         <image name="button.jpg" width="350" height="144"/>
@@ -331,6 +337,8 @@
                 <relationship kind="action" name="btn_click:"/>
                 <relationship kind="outlet" name="headImage" candidateClass="MoPhotograph"/>
                 <relationship kind="outlet" name="label" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="like" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="location" candidateClass="UIButton"/>
                 <relationship kind="outlet" name="table" candidateClass="UITableView"/>
             </relationships>
         </class>

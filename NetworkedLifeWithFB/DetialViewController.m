@@ -67,6 +67,9 @@
     
     label.text = [NSString stringWithFormat:@"你和 %@ 都喜歡的是",friends.name];
     [table setBackgroundColor:[UIColor clearColor]];
+    
+    
+    self.title = self.friends.name;
 }
 
 
@@ -75,11 +78,21 @@
     type = btn.tag;
     
     if (type == 0) {
+        
         label.text = [NSString stringWithFormat:@"你和 %@ 都喜歡的是",friends.name];
     }else{
         label.text = [NSString stringWithFormat:@"你和 %@ 都去過",friends.name];
     }
-    
+    UIButton* icon = sender;
+    [UIView animateWithDuration:0.3f animations:^(void){
+        CGAffineTransform scale = CGAffineTransformMakeScale(1.2f, 1.2f);
+        icon.transform = scale;
+        [UIView animateWithDuration:0.3f animations:^(void){
+            icon.transform = CGAffineTransformMakeScale(1.0f, 1.0f);;
+        }];
+    }];
+
+
     [table reloadData];
     
 }

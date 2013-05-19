@@ -5,9 +5,19 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>${PRODUCT_NAME}</string>
+	<string>大家愛什麼</string>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
+	<key>CFBundleIcons</key>
+	<dict>
+		<key>CFBundlePrimaryIcon</key>
+		<dict>
+			<key>CFBundleIconFiles</key>
+			<array>
+				<string>Icon.png</string>
+			</array>
+		</dict>
+	</dict>
 	<key>CFBundleIdentifier</key>
 	<string>com.mobagel.meeti</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -31,6 +41,10 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>1.0</string>
+	<key>FacebookAppID</key>
+	<string>461239953945314</string>
+	<key>FacebookDisplayName</key>
+	<string>meeti</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIMainStoryboardFile</key>
@@ -39,12 +53,8 @@
 	<array>
 		<string>armv7</string>
 	</array>
-	<key>FacebookAppID</key>
-	<string>461239953945314</string>
-	<key>FacebookDisplayName</key>
-	<string>meeti</string>
 	<key>UIStatusBarHidden</key>
-	<false/>
+	<true/>
 	<key>UIStatusBarTintParameters</key>
 	<dict>
 		<key>UINavigationBar</key>
@@ -54,11 +64,11 @@
 			<key>TintColor</key>
 			<dict>
 				<key>Blue</key>
-				<real>0.63099743185654322</real>
+				<real>0.6309974318565432</real>
 				<key>Green</key>
 				<real>1</real>
 				<key>Red</key>
-				<real>0.42846921405855387</real>
+				<real>0.4284692140585539</real>
 			</dict>
 			<key>Translucent</key>
 			<false/>
@@ -67,8 +77,6 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 </dict>
 </plist>
