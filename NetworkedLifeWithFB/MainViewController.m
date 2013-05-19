@@ -15,6 +15,7 @@
 #import "Cell.h"
 #import <FacebookSDK/FacebookSDK.h>
 #import "LoginViewController.h"
+#import "DetialViewController.h"
 
 @interface MainViewController () <NSFetchedResultsControllerDelegate, UITableViewDataSource, UITableViewDelegate>
 
@@ -220,8 +221,7 @@
 {
     Friend *friend = [self.fetchedResultsController objectAtIndexPath:indexPath];
     
-    NSLog(@"%@",friend);
-//    [mycell.image loadRequestURL:[NSString stringWithFormat:@"http://graph.facebook.com/%@/picture?type=square",friend.identifier] user_id:friend.identifier];
+    [mycell.image loadRequestURL:[NSString stringWithFormat:@"http://graph.facebook.com/%@/picture?type=large",friend.identifier] user_id:friend.identifier];
     mycell.backgroundColor = [UIColor clearColor];
     mycell.title.text = friend.name;
     mycell.subtitle.text = [NSString stringWithFormat:@"%d score", [friend.sumOfScore intValue]];
@@ -230,7 +230,9 @@
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     UIStoryboard* storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
-    UIViewController* FirstViewController = [storyboard instantiateViewControllerWithIdentifier:@"DetialViewController"];
+    DetialViewController* FirstViewController = [storyboard instantiateViewControllerWithIdentifier:@"DetialViewController"];
+    FirstViewController.friends = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    FirstViewController.user = [[self getAllInstanceWithEntityName:@"User"] lastObject];
     [self.navigationController pushViewController:FirstViewController animated:YES];
 }
 

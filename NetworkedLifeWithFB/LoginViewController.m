@@ -81,13 +81,10 @@
     currentFriendCount = 0;
     currentFriendLikeCount = 0;
     currentFriendCheckinCount = 0;
-    loadFriendLimit = 10;
+    loadFriendLimit = 50;
     
-    //    [self clearAllInstanceOfEntityWithName:@"User"];
-    //    [self clearAllInstanceOfEntityWithName:@"Friend"];
-    //    [self clearAllInstanceOfEntityWithName:@"Like"];
-    //    [self clearAllInstanceOfEntityWithName:@"Checkin"];
     [self clearWholeDatabase];
+    [self.navigationController.visibleViewController setTitle:@"大家愛什麼"];
 }
 
 -(IBAction)loginBtn:(id)sender
@@ -397,10 +394,10 @@
 //            if (friends.count == 50) {
             if (friends.count == loadFriendLimit) {
                 [self sendFBRequestForLikesOfFriends:friends];
-                [self sendFBRequestForCheckinsOfFriends:friends];
+                [self performSelector:@selector(sendFBRequestForCheckinsOfFriends:) withObject:friends afterDelay:10];
+//                [self sendFBRequestForCheckinsOfFriends:friends];
                 
                 friends = [[NSMutableArray alloc] init];
-                
                 break;
             }
         }
@@ -562,7 +559,7 @@
         }
         
         friend.scoreOfCheckins = @(scoreOfCheckin);
-        int sum = [friend.sumOfScore intValue] + scoreOfCheckin;
+        int sum = [friend.sumOfScore intValue] + scoreOfCheckin*2;
         friend.sumOfScore = @(sum);
     }
     [self saveManagedObjectContext];
