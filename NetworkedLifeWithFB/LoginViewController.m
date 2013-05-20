@@ -17,13 +17,13 @@
 #import "MBProgressHUD.h"
 
 
-#define loadFriendLimit 50
+#define loadFriendLimit 20
 
 @interface LoginViewController () <MBProgressHUDDelegate> {
     int currentFriendCount;
     int currentFriendLikeCount;
     int currentFriendCheckinCount;
-    
+
     MBProgressHUD *hud;
 }
 
@@ -232,7 +232,7 @@
     //    NSLog(@"%@", result);
     if (!error) {
         NSString *userID = [result objectForKey:@"id"];
-        NSLog(@"User ID: %@", userID);
+//        NSLog(@"User ID: %@", userID);
         
         User *user = [self checkExistenceWithEntityName:@"User" identifier:userID];
         if (user == nil) {
@@ -280,7 +280,7 @@
         
         for (NSDictionary *likeData in data) {
             NSString *likeID = [likeData objectForKey:@"id"];
-            NSLog(@"User ID: %@, Likes: %@", user.identifier, likeID);
+//            NSLog(@"User ID: %@, Likes: %@", user.identifier, likeID);
             
             Like *like = [self checkExistenceWithEntityName:@"Like" identifier:likeID];
             if (like == nil) {
@@ -327,7 +327,7 @@
             NSDictionary *place = [placeDic objectForKey:@"place"];
             NSString *placeID = [place objectForKey:@"id"];
             
-            NSLog(@"User ID: %@, Checkin: %@", user.identifier, placeID);
+//            NSLog(@"User ID: %@, Checkin: %@", user.identifier, placeID);
             
             Checkin *checkin = [self checkExistenceWithEntityName:@"Checkin" identifier:placeID];
             if (checkin == nil) {
@@ -375,7 +375,7 @@
         for (NSDictionary *friendData in data) {
             NSString *fID = [friendData objectForKey:@"id"];
             
-            NSLog(@"Friend ID: %@", fID);
+//            NSLog(@"Friend ID: %@", fID);
             
             Friend *friend = [self checkExistenceWithEntityName:@"Friend" identifier:fID];
             if (friend == nil) {
@@ -394,10 +394,16 @@
             [friends addObject:friend];
             
 //            if (friends.count == 50) {
+//                [self sendFBRequestForLikesOfFriends:friends];
+//                [self sendFBRequestForCheckinsOfFriends:friends];
+//                [friends removeAllObjects];
+////                break;
+//            }
+            //            if (friends.count == 50) {
             if (friends.count == loadFriendLimit) {
                 [self sendFBRequestForLikesOfFriends:friends];
                 [self performSelector:@selector(sendFBRequestForCheckinsOfFriends:) withObject:friends afterDelay:10];
-//                [self sendFBRequestForCheckinsOfFriends:friends];
+                //                [self sendFBRequestForCheckinsOfFriends:friends];
                 
                 friends = [[NSMutableArray alloc] init];
                 break;
@@ -437,7 +443,7 @@
         for (NSDictionary *likeData in data) {
             NSString *likeID = [likeData objectForKey:@"id"];
             
-            NSLog(@"Friend ID: %@, Likes: %@", friend.identifier, likeID);
+//            NSLog(@"Friend ID: %@, Likes: %@", friend.identifier, likeID);
             
             Like *like = [self checkExistenceWithEntityName:@"Like" identifier:likeID];
             if (like == nil) {
@@ -493,7 +499,7 @@
             NSDictionary *place = [placeDic objectForKey:@"place"];
             NSString *placeID = [place objectForKey:@"id"];
             
-            NSLog(@"Friend ID: %@, Checkin: %@", friend.identifier, placeID);
+//            NSLog(@"Friend ID: %@, Checkin: %@", friend.identifier, placeID);
             
             Checkin *checkin = [self checkExistenceWithEntityName:@"Checkin" identifier:placeID];
             if (checkin == nil) {
@@ -591,7 +597,7 @@
     
     UIStoryboard* storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
     UIViewController* FirstViewController = [storyboard instantiateViewControllerWithIdentifier:@"MainViewController"];
-    FirstViewController.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+    FirstViewController.modalTransitionStyle = UIModalTransitionStyleFlipHorizontal;
     [self presentViewController:FirstViewController animated:YES completion:nil];
 }
 

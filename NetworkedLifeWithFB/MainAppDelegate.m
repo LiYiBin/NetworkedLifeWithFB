@@ -55,7 +55,7 @@
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     
     // It is important to close any FBSession object that is no longer useful
-    [FBSession.activeSession close];
+//    [FBSession.activeSession close];
 }
 #pragma mark - Facebook
 

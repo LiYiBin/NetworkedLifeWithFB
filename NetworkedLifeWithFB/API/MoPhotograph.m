@@ -12,22 +12,21 @@
 @implementation MoPhotograph
 @synthesize photoSize;
 
--(void)loadRequestURL:(NSString*)url user_id:(NSString*)uid{
+-(id)initWithCoder:(NSCoder *)aDecoder{
+    self = [super initWithCoder:aDecoder];
+    if (self) {
 
+    }
+    return self;
+}
+
+-(void)loadRequestURL:(NSString*)url user_id:(NSString*)uid{
+    self.image = nil;
+    [self resetShadow];
+    
     photoSize = MoPhotographSize180x180;
     
-    [self.layer setCornerRadius:5];
-    [self.layer setShadowColor:[UIColor blackColor].CGColor];
-    [[self layer] setShadowOpacity:0.7f];
-    [[self layer] setShadowOffset:CGSizeMake(1.0, 1.0)];
-    [self.layer setShadowRadius:5];
-    
-    
-    [[self layer] setShadowPath:[UIBezierPath bezierPathWithRoundedRect:self.bounds cornerRadius:5].CGPath];
-    
-    [self setClipsToBounds:YES];
-//    [self.layer setMasksToBounds:YES];
-//    uid_ = [NSString stringWithString:uid];
+
     uid_ = [NSString stringWithFormat:@"%@",uid];
     
     NSString* path = [NSTemporaryDirectory() stringByAppendingFormat:@"%@%@.jpg",@"FBPhoto:",uid_];
@@ -59,6 +58,10 @@
     activity = nil;
 }
  */
+-(void)resetShadow{
+    [self.layer setCornerRadius:5];
+
+}
 
 -(void)requestFinished:(ASIHTTPRequest *)request{
 //    [activity stopAnimating];

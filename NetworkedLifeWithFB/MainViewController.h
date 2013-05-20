@@ -8,6 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
-@interface MainViewController : UIViewController
+@interface MainViewController : UIViewController{
+
+    int     maxScore;
+}
 
 @end

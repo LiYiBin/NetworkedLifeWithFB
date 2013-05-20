@@ -34,7 +34,6 @@
 		849825F2174870ED00F6E319 /* ASIHTTPRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 849825E5174870ED00F6E319 /* ASIHTTPRequest.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		849825F3174870ED00F6E319 /* ASIInputStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 849825E9174870ED00F6E319 /* ASIInputStream.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		849825F4174870ED00F6E319 /* ASINetworkQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 849825EB174870ED00F6E319 /* ASINetworkQueue.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		849825FC174874B100F6E319 /* button.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 849825FB174874B100F6E319 /* button.jpg */; };
 		860F5FB01732A34200E51FC8 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 860F5FAF1732A34200E51FC8 /* UIKit.framework */; };
 		860F5FB21732A34200E51FC8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 860F5FB11732A34200E51FC8 /* Foundation.framework */; };
 		860F5FB41732A34200E51FC8 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 860F5FB31732A34200E51FC8 /* CoreGraphics.framework */; };
@@ -131,7 +130,6 @@
 		849825F81748710A00F6E319 /* SBJsonBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonBase.h; sourceTree = "<group>"; };
 		849825F91748710A00F6E319 /* SBJsonParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonParser.h; sourceTree = "<group>"; };
 		849825FA1748710A00F6E319 /* SBJsonWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonWriter.h; sourceTree = "<group>"; };
-		849825FB174874B100F6E319 /* button.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = button.jpg; sourceTree = "<group>"; };
 		860F5FAC1732A34200E51FC8 /* NetworkedLifeWithFB.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NetworkedLifeWithFB.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		860F5FAF1732A34200E51FC8 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		860F5FB11732A34200E51FC8 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -181,12 +179,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				86EBFF811746245E00271237 /* Social.framework in Frameworks */,
 				8469C84C1746916800BD2008 /* MobileCoreServices.framework in Frameworks */,
 				860F5FB41732A34200E51FC8 /* CoreGraphics.framework in Frameworks */,
 				8469C84A1746911000BD2008 /* libz.dylib in Frameworks */,
 				8469C8481746905A00BD2008 /* SystemConfiguration.framework in Frameworks */,
 				8469C8461746901000BD2008 /* CFNetwork.framework in Frameworks */,
-				86EBFF811746245E00271237 /* Social.framework in Frameworks */,
 				86EBFF7F1746245400271237 /* Security.framework in Frameworks */,
 				86EBFF7D1746244E00271237 /* libsqlite3.dylib in Frameworks */,
 				86EBFF7B1746244600271237 /* Accounts.framework in Frameworks */,
@@ -356,7 +354,6 @@
 		860F5FB61732A34200E51FC8 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				849825FB174874B100F6E319 /* button.jpg */,
 				63B7A2EF1748BF1700D5ECE7 /* LikeIcon.jpg */,
 				63B7A2F01748BF1700D5ECE7 /* LocationIcon.jpg */,
 				63B7A2EB1748B8C500D5ECE7 /* Default.jpg */,
@@ -494,7 +491,6 @@
 				8469C850174697DD00BD2008 /* bg2.png in Resources */,
 				86EBFF75174623E100271237 /* FacebookSDKResources.bundle in Resources */,
 				86EBFF771746241700271237 /* FBUserSettingsViewResources.bundle in Resources */,
-				849825FC174874B100F6E319 /* button.jpg in Resources */,
 				63B7A2EC1748B8C500D5ECE7 /* Default.jpg in Resources */,
 				63B7A2EE1748BEAD00D5ECE7 /* Icon.png in Resources */,
 				63B7A2F11748BF1700D5ECE7 /* LikeIcon.jpg in Resources */,
@@ -670,8 +666,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer: chen yang chou (2N57W9V53T)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: chen yang chou (2N57W9V53T)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Lin Can (H5V8RQMFQ7)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Lin Can (H5V8RQMFQ7)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
@@ -686,8 +682,8 @@
 					"\"$(SRCROOT)/NetworkedLifeWithFB/facebook\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "998AA94A-8852-451B-BC66-AA8B620E3D10";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "998AA94A-8852-451B-BC66-AA8B620E3D10";
+				PROVISIONING_PROFILE = "B2B0DEFB-2F76-4C1F-9A34-8B1DDF2BD690";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "B2B0DEFB-2F76-4C1F-9A34-8B1DDF2BD690";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -696,8 +692,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer: chen yang chou (2N57W9V53T)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: chen yang chou (2N57W9V53T)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Lin Can (H5V8RQMFQ7)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Lin Can (H5V8RQMFQ7)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
@@ -712,8 +708,8 @@
 					"\"$(SRCROOT)/NetworkedLifeWithFB/facebook\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "998AA94A-8852-451B-BC66-AA8B620E3D10";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "998AA94A-8852-451B-BC66-AA8B620E3D10";
+				PROVISIONING_PROFILE = "B2B0DEFB-2F76-4C1F-9A34-8B1DDF2BD690";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "B2B0DEFB-2F76-4C1F-9A34-8B1DDF2BD690";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

@@ -21,6 +21,9 @@
 @property(nonatomic,readwrite,retain)IBOutlet MoPhotograph *headImage;
 @property(nonatomic,readwrite,retain)IBOutlet UITableView *table;
 @property(nonatomic,readwrite,retain)IBOutlet UILabel *label;
+@property(nonatomic,readwrite,retain)IBOutlet UIButton* checkInButton;
 
 -(IBAction)btn_click:(id)sender;
+
+-(IBAction)CheckIn:(id)sender;
 @end

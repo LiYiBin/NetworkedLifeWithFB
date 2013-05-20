@@ -9,6 +9,8 @@
 #import "DetialViewController.h"
 #import "Like.h"
 #import "Checkin.h"
+#import <Social/Social.h>
+#import <QuartzCore/QuartzCore.h>
 
 @interface DetialViewController ()<UITableViewDataSource,UITableViewDelegate>{
     NSMutableArray *likeName;
@@ -42,11 +44,19 @@
     
     [self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"bg.png"]]];
     
-    [headImage loadRequestURL:[NSString stringWithFormat:@"http://graph.facebook.com/%@/picture?type=square",friends.identifier] user_id:friends.identifier];
-    
     likeName = [[NSMutableArray alloc]init];
     checkinName = [[NSMutableArray alloc]init];
     
+    
+    [like.layer setCornerRadius:3.0];
+    [like.layer setShadowColor:[UIColor blackColor].CGColor];
+    [like.layer setShadowOpacity:1.0];
+    [like.layer setShadowOffset:CGSizeMake(1, 1)];
+    
+    [location.layer setCornerRadius:3.0];
+    [location.layer setShadowColor:[UIColor blackColor].CGColor];
+    [location.layer setShadowOpacity:1.0];
+    [location.layer setShadowOffset:CGSizeMake(1, 1)];
     
     
     for (Like *friendLike in friends.likes) {
@@ -69,6 +79,15 @@
     [table setBackgroundColor:[UIColor clearColor]];
     
     
+    NSString* path = [NSTemporaryDirectory() stringByAppendingFormat:@"%@%@.jpg",@"FBPhoto:",friends.identifier];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
+        headImage.image = [UIImage imageWithContentsOfFile:path];
+        [headImage resetShadow];
+        [[headImage layer] setShadowOffset:CGSizeMake(1.0, 1.0)];
+        [[headImage layer] setShadowOpacity:1.0];
+        [[headImage layer] setShadowColor:[UIColor blackColor].CGColor];
+    }
+    
     self.title = self.friends.name;
 }
 
@@ -78,10 +97,30 @@
     type = btn.tag;
     
     if (type == 0) {
+        _checkInButton.alpha = 0.0;
+        _checkInButton.enabled = NO;
         
         label.text = [NSString stringWithFormat:@"你和 %@ 都喜歡的是",friends.name];
     }else{
-        label.text = [NSString stringWithFormat:@"你和 %@ 都去過",friends.name];
+
+        [UIView  animateWithDuration:0.5f animations:^(void){
+            if ([checkinName count] == 0) {
+                //尚未有交流
+                _checkInButton.alpha = 1.0;
+                label.text = [NSString stringWithFormat:@"你和 %@ 尚未有交流 ,立即打卡吧",friends.name];
+            }else{
+                _checkInButton.alpha = 0.0;
+                label.text = [NSString stringWithFormat:@"你和 %@ 都去過",friends.name];
+            }
+        } completion:^(BOOL finsih){
+            if ([checkinName count] == 0) {
+                //尚未有交流
+                _checkInButton.enabled = YES;
+            }else{
+                _checkInButton.enabled = NO;
+            }
+        }];
+
     }
     UIButton* icon = sender;
     [UIView animateWithDuration:0.3f animations:^(void){
@@ -130,6 +169,19 @@
     }
 
     return cell;
+}
+
+-(IBAction)CheckIn:(id)sender{
+    SLComposeViewController *composer = [SLComposeViewController
+                                         composeViewControllerForServiceType:SLServiceTypeFacebook];
+    [composer setCompletionHandler:^(SLComposeViewControllerResult result) {
+        //        [self dismissViewControllerAnimated:YES completion:^{
+        //
+        //        }];
+    }];
+    [composer setInitialText:[NSString stringWithFormat:@"我跟 %@ 在台科大上課噢",friends.name]];
+//    [composer addImage:self.shareImage];
+    [self presentViewController:composer animated:YES completion:NULL];
 }
 
 

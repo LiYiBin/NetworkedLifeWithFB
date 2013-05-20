@@ -23,5 +23,5 @@ typedef enum {
 @property(nonatomic, readwrite, assign)MoPhotographSize photoSize;
 
 -(void)loadRequestURL:(NSString*)url user_id:(NSString*)uid;
-
+-(void)resetShadow;
 @end

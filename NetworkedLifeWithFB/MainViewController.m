@@ -16,6 +16,7 @@
 #import <FacebookSDK/FacebookSDK.h>
 #import "LoginViewController.h"
 #import "DetialViewController.h"
+#import <QuartzCore/QuartzCore.h>
 
 @interface MainViewController () <NSFetchedResultsControllerDelegate, UITableViewDataSource, UITableViewDelegate>
 
@@ -91,6 +92,21 @@
     UIBarButtonItem *anotherButton = [[UIBarButtonItem alloc] initWithTitle:@"登出" style:UIBarButtonItemStylePlain
                                                                      target:self action:@selector(logOut)];
     self.navigationItem.rightBarButtonItem = anotherButton;
+    maxScore = 0;
+    
+//    NSArray*    allFriend = [self.fetchedResultsController sections];
+//    //取得最大的分數
+//    for (Friend* f in allFriend) {
+//        maxScore = MAX(maxScore, [f.sumOfScore intValue]);
+//    }
+    for (Friend* item in self.fetchedResultsController.fetchedObjects)
+    {
+        if ([item isKindOfClass:[Friend class]]){
+            maxScore = MAX(maxScore, [item.sumOfScore intValue]);
+        }
+    }
+    
+    
     
     
     if ([[FBSession activeSession] isOpen]) {
@@ -210,6 +226,7 @@
     static NSString *CellIdentifier = @"Cell";
     
     Cell *mycell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
+    
     [self configureCell:mycell atIndexPath:indexPath];
     
     return mycell;
@@ -221,18 +238,22 @@
 {
     Friend *friend = [self.fetchedResultsController objectAtIndexPath:indexPath];
     
+    
     [mycell.image loadRequestURL:[NSString stringWithFormat:@"http://graph.facebook.com/%@/picture?type=large",friend.identifier] user_id:friend.identifier];
+    
     mycell.backgroundColor = [UIColor clearColor];
     mycell.title.text = friend.name;
-    mycell.subtitle.text = [NSString stringWithFormat:@"%d score", [friend.sumOfScore intValue]];
+    mycell.percentNeedScore.progress = (((float)(friend.sumOfScore.floatValue)) / (float)maxScore );
+    mycell.percentNeedScore.progressTintColor = [UIColor colorWithRed:mycell.percentNeedScore.progress green:0 blue:1.0 - (mycell.percentNeedScore.progress) alpha:0.5f];
+    
 }
 
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     UIStoryboard* storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
     DetialViewController* FirstViewController = [storyboard instantiateViewControllerWithIdentifier:@"DetialViewController"];
+    //取得朋友大頭圖
     
-//    FirstViewController.navigationController.title = self.
     FirstViewController.friends = [self.fetchedResultsController objectAtIndexPath:indexPath];
     FirstViewController.user = [[self getAllInstanceWithEntityName:@"User"] lastObject];
     [self.navigationController pushViewController:FirstViewController animated:YES];

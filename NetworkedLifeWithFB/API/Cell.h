@@ -11,11 +11,13 @@
 
 @interface Cell : UITableViewCell {
     BOOL ischeck;
+    
 }
 
-@property (nonatomic, retain) IBOutlet MoPhotograph *image;
-@property (nonatomic, retain) IBOutlet UILabel *title;
-@property (nonatomic, retain) IBOutlet UILabel *subtitle;
+@property (nonatomic, strong) IBOutlet UIProgressView*    percentNeedScore;;
+@property (nonatomic, strong) IBOutlet MoPhotograph *image;
+@property (nonatomic, strong) IBOutlet UILabel *title;
+@property (nonatomic, strong) IBOutlet UILabel *subtitle;
 
 
 -(void)setEditMode;
